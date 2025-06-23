@@ -49,16 +49,16 @@ fav list
 # 1. git log --oneline --graph --all
 ```
 
-### Run a saved command
+### Use tab completion to run commands
 ```bash
-# Type fav and press TAB to see all commands
+# Press TAB to see all your saved commands
 fav <TAB>
 
-# Or type the beginning and TAB to complete
+# Or type the first few letters and TAB to autocomplete
 fav git<TAB>
+# Autocompletes to: fav "git log --oneline --graph --all"
 
-# Press enter to run
-fav "git log --oneline --graph --all"
+# Press ENTER to execute the full command
 ```
 
 ### Remove commands you don't need
@@ -68,25 +68,23 @@ fav remove 1
 
 ## Examples
 
-Save your most-used commands:
+Think of `fav` as your personal command palette with tab completion:
 
 ```bash
-# Docker commands
-fav add "docker ps -a"
-fav add "docker system prune -a"
+# Save complex Docker commands
+fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
+fav add "docker system prune -a --volumes"
 
-# Git workflows  
+# Save Git workflows you use daily
 fav add "git push origin main"
-fav add "git log --oneline -10"
+fav add "git log --oneline --graph --all -20"
 
-# System monitoring
-fav add "top -o cpu"
-fav add "df -h"
-
-# Project-specific
-fav add "npm run dev"
-fav add "python manage.py runserver"
+# Save project-specific commands
+fav add "npm run dev -- --host 0.0.0.0"
+fav add "python manage.py runserver 0.0.0.0:8000"
 ```
+
+Now when you type `fav doc<TAB>`, you'll see both Docker commands. Pick one and press ENTER to run the full command.
 
 ## Commands Reference
 
