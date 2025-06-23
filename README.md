@@ -1,6 +1,10 @@
 # fav
 
-Tab completion for your favorite commands. Press TAB to autocomplete any command you've saved.
+Save and autocomplete your favorite commands.
+
+Just "fav add top" to add and "fav t.." to complete.
+
+Sync via iCloud Drive.
 
 ## What it does
 
