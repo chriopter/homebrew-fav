@@ -68,7 +68,7 @@ _fav() {
     esac
 }
 
-# Set completion style to inline cycling for fav commands
-zstyle ':completion:*:*:fav:*' menu yes
+# Set completion style to pure inline cycling (no list) for fav commands
+zstyle ':completion:*:*:fav:*' menu no
 
 _fav "$@"
