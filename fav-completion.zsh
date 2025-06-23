@@ -32,9 +32,8 @@ _fav() {
         if [[ -f "$fav_file" ]] && [[ -s "$fav_file" ]]; then
             local line
             while IFS= read -r line; do
-                # Escape special characters for zsh completion
-                local escaped_line="${line//:/\\:}"
-                favorites+=("${escaped_line}:Execute: ${line}")
+                # Just add the command without description
+                favorites+=("$line")
             done < "$fav_file"
         fi
         
@@ -42,12 +41,14 @@ _fav() {
         local -a all_completions
         all_completions=($commands $options $favorites)
         
-        # Use compadd for better control over completion
+        # First add favorite commands (no descriptions needed)
+        if [[ ${#favorites} -gt 0 ]]; then
+            compadd -Q -a favorites
+        fi
+        
+        # Then add commands and options with descriptions
         _describe -t commands 'commands' commands
         _describe -t options 'options' options
-        if [[ ${#favorites} -gt 0 ]]; then
-            _describe -t favorites 'favorite commands' favorites
-        fi
         
         return 0
     fi
@@ -93,5 +94,9 @@ _fav() {
 
 # Set completion style to menu select for cycling through options
 zstyle ':completion:*:*:fav:*' menu select
+
+# Enable shift-tab for reverse menu completion
+# This is a global setting but useful for fav
+bindkey '^[[Z' reverse-menu-complete
 
 _fav "$@"
