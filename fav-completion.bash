@@ -18,7 +18,7 @@ _fav_completions() {
                 COMPREPLY=( $(compgen -W "${options}" -- ${cur}) )
             else
                 # Get favorite commands from the file
-                local fav_file="$HOME/.fav_favorites.txt"
+                local fav_file="$HOME/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/fav_favorites.txt"
                 if [[ -f "$fav_file" ]] && [[ -s "$fav_file" ]]; then
                     # Read commands from file and escape special characters
                     local favorites=""

@@ -57,8 +57,8 @@ Show version:
 .B fav --version
 .SH FILES
 .TP
-.I ~/.fav_favorites.txt
-The file where favorite commands are stored, one per line.
+.I ~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/fav_favorites.txt
+The file where favorite commands are stored in iCloud Drive for syncing between Macs, one per line.
 .SH EXIT STATUS
 .TP
 .B 0
@@ -69,7 +69,7 @@ General error (invalid command, missing arguments, etc.)
 .SH ENVIRONMENT
 .TP
 .B HOME
-Used to determine the location of the favorites file (~/.fav_favorites.txt).
+Used to determine the base path for the iCloud Drive location where favorites are stored.
 .SH NOTES
 Commands are stored in plain text format in the favorites file.
 Each command is stored on a separate line.
