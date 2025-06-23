@@ -1,24 +1,27 @@
 # fav
 
-Save your favorite commands and run them with a single word. No more typing long commands over and over.
+Tab completion for your favorite commands. Press TAB to autocomplete any command you've saved.
 
 ## What it does
 
-`fav` remembers your commonly used commands so you can run them instantly:
+`fav` gives you instant tab completion for your most-used commands:
 
 ```bash
-# Instead of typing this every time...
-docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+# Save a complex command once
+fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
 
-# Just type:
-fav docker
+# Later, just type and press TAB to autocomplete
+fav doc<TAB>
+# Autocompletes to: fav "docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
+
+# Press ENTER to run
 ```
 
 ✨ **Features**
-- Save any command with `fav add`
-- Run commands with tab completion
-- Commands sync between your Macs via iCloud
-- No configuration files to edit
+- **Tab completion** for all your saved commands
+- **Full commands** - not abbreviations or aliases
+- **iCloud sync** - your favorites work on all your Macs
+- **Zero config** - just save and use
 
 ## Installation
 
