@@ -19,6 +19,15 @@ List all saved favorite commands with their index numbers.
 .B remove \fI<index>\fR
 Remove a command from favorites by its index number.
 .TP
+.B setup
+Configure shell completion for tab completion support. Auto-detects your shell and adds the necessary configuration to your shell's RC file.
+.TP
+.B setup --check
+Check if tab completion is already configured.
+.TP
+.B setup --shell \fI<shell>\fR
+Configure completion for a specific shell (zsh or bash).
+.TP
 .B help
 Display help information about fav commands and usage.
 .TP
@@ -55,6 +64,9 @@ Remove the second command from favorites:
 .TP
 Show version:
 .B fav --version
+.TP
+Configure tab completion:
+.B fav setup
 .SH FILES
 .TP
 .I ~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/fav_favorites.txt

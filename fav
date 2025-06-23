@@ -16,6 +16,7 @@ COMMANDS:
     add "command"    Add a command to favorites
     list             List all favorite commands
     remove <index>   Remove a command by index
+    setup            Configure shell completion
     help             Show this help message
     version          Show version information
 
@@ -28,6 +29,7 @@ EXAMPLES:
     fav add "docker ps -a"
     fav list
     fav remove 2
+    fav setup        # Configure tab completion
     fav              # Lists all commands
 
 For more information, see man fav
@@ -105,6 +107,106 @@ remove_command() {
     echo "Removed from favorites: $removed_cmd"
 }
 
+setup_completion() {
+    local shell_type="${1:-auto}"
+    local check_only="${2:-false}"
+    
+    # Auto-detect shell if not specified
+    if [[ "$shell_type" == "auto" ]]; then
+        if [[ -n "$ZSH_VERSION" ]]; then
+            shell_type="zsh"
+        elif [[ -n "$BASH_VERSION" ]]; then
+            shell_type="bash"
+        else
+            # Fallback to checking SHELL variable
+            case "$SHELL" in
+                */zsh)
+                    shell_type="zsh"
+                    ;;
+                */bash)
+                    shell_type="bash"
+                    ;;
+                *)
+                    echo "Error: Unable to detect shell type"
+                    echo "Please specify: fav setup --shell zsh or fav setup --shell bash"
+                    exit 1
+                    ;;
+            esac
+        fi
+    fi
+    
+    echo "Detected shell: $shell_type"
+    
+    # Define RC file and completion config
+    local rc_file
+    local completion_config
+    
+    if [[ "$shell_type" == "zsh" ]]; then
+        rc_file="$HOME/.zshrc"
+        completion_config='# fav completion setup
+if type brew &>/dev/null; then
+  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
+  autoload -Uz compinit
+  compinit
+fi'
+    elif [[ "$shell_type" == "bash" ]]; then
+        rc_file="$HOME/.bash_profile"
+        if [[ ! -f "$rc_file" ]]; then
+            rc_file="$HOME/.bashrc"
+        fi
+        completion_config='# fav completion setup
+if type brew &>/dev/null; then
+  HOMEBREW_PREFIX="$(brew --prefix)"
+  if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]; then
+    source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
+  fi
+fi'
+    else
+        echo "Error: Unsupported shell type: $shell_type"
+        exit 1
+    fi
+    
+    # Check if completion is already configured
+    if grep -q "fav completion setup" "$rc_file" 2>/dev/null; then
+        echo "✓ Tab completion is already configured in $rc_file"
+        if [[ "$check_only" == "true" ]]; then
+            exit 0
+        fi
+        echo "No changes needed."
+        return
+    fi
+    
+    if [[ "$check_only" == "true" ]]; then
+        echo "✗ Tab completion is NOT configured in $rc_file"
+        echo "Run 'fav setup' to configure it."
+        exit 1
+    fi
+    
+    # Create RC file if it doesn't exist
+    if [[ ! -f "$rc_file" ]]; then
+        echo "Creating $rc_file..."
+        touch "$rc_file"
+    fi
+    
+    # Backup RC file
+    local backup_file="${rc_file}.backup.$(date +%Y%m%d_%H%M%S)"
+    cp "$rc_file" "$backup_file"
+    echo "Created backup: $backup_file"
+    
+    # Add completion config
+    echo "" >> "$rc_file"
+    echo "$completion_config" >> "$rc_file"
+    echo "" >> "$rc_file"
+    
+    echo "✓ Added tab completion configuration to $rc_file"
+    echo ""
+    echo "To activate completion, either:"
+    echo "  1. Restart your terminal, or"
+    echo "  2. Run: source $rc_file"
+    echo ""
+    echo "Then try: fav <TAB>"
+}
+
 case "$1" in
     -h|--help|help)
         show_help
@@ -122,6 +224,21 @@ case "$1" in
     remove)
         shift
         remove_command "$1"
+        ;;
+    setup)
+        shift
+        case "$1" in
+            --check)
+                setup_completion "auto" "true"
+                ;;
+            --shell)
+                shift
+                setup_completion "$1" "false"
+                ;;
+            *)
+                setup_completion "auto" "false"
+                ;;
+        esac
         ;;
     "")
         list_commands

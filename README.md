@@ -6,11 +6,18 @@ A bash favorite command tool for macOS.
 
 ```bash
 brew install chriopter/fav/fav
+fav setup  # Configure tab completion
 ```
 
-### Enable Tab Completion
+That's it! The `fav setup` command will automatically detect your shell and configure tab completion.
 
-For **zsh** (default on macOS):
+### Manual Setup (Optional)
+
+If you prefer to set up completion manually, or if `fav setup` doesn't work for your configuration:
+
+<details>
+<summary>For zsh (default on macOS)</summary>
+
 ```bash
 # Add to your ~/.zshrc
 if type brew &>/dev/null; then
@@ -19,8 +26,11 @@ if type brew &>/dev/null; then
   compinit
 fi
 ```
+</details>
 
-For **bash**:
+<details>
+<summary>For bash</summary>
+
 ```bash
 # Add to your ~/.bash_profile or ~/.bashrc
 if type brew &>/dev/null; then
@@ -30,8 +40,7 @@ if type brew &>/dev/null; then
   fi
 fi
 ```
-
-After adding the above, restart your terminal or run `source ~/.zshrc` (or `source ~/.bash_profile` for bash).
+</details>
 
 ## Usage
 
