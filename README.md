@@ -28,6 +28,7 @@ fav setup # To setup autocompletion
 ```bash
 # Save a command
 fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
+# Works without "-marks as well but might not escapce correctly.
 
 # Show all Favs with Index
 fav
