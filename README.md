@@ -5,14 +5,14 @@ Save your favorite commands once. Run them with tab completion forever.
 Remember that Docker command with all the formatting flags? Or that Git log with the perfect options? Save them with `fav` and never type them again. Just press TAB and go.
 
 ```bash
-# Before: typing this every time 😫
-docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+# Add command as fav:
+fav add docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
 
 # After: just three letters + TAB 🚀
-fav doc<TAB>
+fav dock<TAB>
 ```
 
-Your commands sync between all your Macs automatically.
+Your commands sync between all your Macs automatically via iCloud Drive.
 
 ## Install
 
@@ -40,13 +40,9 @@ fav doc<TAB>
 - `fav` - List saved commands  
 - `fav remove <n>` - Remove by number
 - `fav <TAB>` - See all commands
-
-## More Info
-
 - `fav --help` - Show help
 - `man fav` - Read manual
 - Commands stored in iCloud Drive at `~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/`
-
 
 ## Development
 
