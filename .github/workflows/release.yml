@@ -67,7 +67,7 @@ jobs:
       - name: Update Homebrew Formula
         run: |
           VERSION=${{ steps.version.outputs.version }}
-          TARBALL_URL="https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz"
+          TARBALL_URL="https://github.com/chriopter/homebrew-fav/archive/refs/tags/${VERSION}.tar.gz"
           
           # Wait a bit for GitHub to process the tag
           sleep 5
