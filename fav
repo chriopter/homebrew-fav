@@ -113,26 +113,28 @@ setup_completion() {
     
     # Auto-detect shell if not specified
     if [[ "$shell_type" == "auto" ]]; then
-        if [[ -n "$ZSH_VERSION" ]]; then
-            shell_type="zsh"
-        elif [[ -n "$BASH_VERSION" ]]; then
-            shell_type="bash"
-        else
-            # Fallback to checking SHELL variable
-            case "$SHELL" in
-                */zsh)
+        # Check the user's default shell first (most reliable)
+        case "$SHELL" in
+            */zsh)
+                shell_type="zsh"
+                ;;
+            */bash)
+                shell_type="bash"
+                ;;
+            *)
+                # Fallback to checking version variables (only works if running in that shell)
+                if [[ -n "$ZSH_VERSION" ]]; then
                     shell_type="zsh"
-                    ;;
-                */bash)
+                elif [[ -n "$BASH_VERSION" ]]; then
                     shell_type="bash"
-                    ;;
-                *)
+                else
                     echo "Error: Unable to detect shell type"
+                    echo "Your default shell is: $SHELL"
                     echo "Please specify: fav setup --shell zsh or fav setup --shell bash"
                     exit 1
-                    ;;
-            esac
-        fi
+                fi
+                ;;
+        esac
     fi
     
     echo "Detected shell: $shell_type"
