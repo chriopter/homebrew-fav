@@ -5,7 +5,7 @@ A bash favorite command tool for macOS.
 ## Installation
 
 ```bash
-brew install chriopter/fav/fav
+brew install chriopter/fav
 ```
 
 ## Usage
