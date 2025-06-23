@@ -127,8 +127,29 @@ case "$1" in
         list_commands
         ;;
     *)
-        echo "Error: Unknown command '$1'"
-        echo "Use 'fav --help' for usage information"
-        exit 1
+        # Check if the argument matches a favorite command
+        init_fav_file
+        if [[ -f "$FAV_FILE" ]] && [[ -s "$FAV_FILE" ]]; then
+            # Try to find and execute a matching command
+            local found=false
+            while IFS= read -r cmd; do
+                if [[ "$cmd" == "$*" ]] || [[ "$cmd" == "$1"* ]]; then
+                    echo "Executing: $cmd"
+                    eval "$cmd"
+                    found=true
+                    break
+                fi
+            done < "$FAV_FILE"
+            
+            if [[ "$found" == false ]]; then
+                echo "Error: Unknown command '$1'"
+                echo "Use 'fav --help' for usage information"
+                exit 1
+            fi
+        else
+            echo "Error: Unknown command '$1'"
+            echo "Use 'fav --help' for usage information"
+            exit 1
+        fi
         ;;
 esac
