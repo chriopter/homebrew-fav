@@ -2,6 +2,8 @@
 
 Save your favorite commands once. Run them with tab completion forever.
 
+![image](https://github.com/user-attachments/assets/2bd04cfe-9dff-4080-a8ca-2bfd0a3f5893)
+
 Remember that Docker command with all the formatting flags? Or that Git log with the perfect options? Save them with `fav` and never type them again. Just press TAB and go.
 
 ```bash
