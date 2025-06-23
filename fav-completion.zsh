@@ -8,47 +8,23 @@ _fav() {
     
     # If we're on the first argument after 'fav'
     if [[ $CURRENT -eq 2 ]]; then
-        local -a commands options favorites
-        
-        # Base commands
-        commands=(
-            'add:Add a command to favorites'
-            'list:List all favorite commands'
-            'remove:Remove a command by index'
-            'setup:Configure shell completion'
-            'help:Show help message'
-            'version:Show version information'
-        )
-        
-        # Options
-        options=(
-            '-h:Show help message'
-            '--help:Show help message'
-            '-v:Show version information'
-            '--version:Show version information'
-        )
+        local -a favorites
         
         # Read favorite commands if file exists
         if [[ -f "$fav_file" ]] && [[ -s "$fav_file" ]]; then
             local line
             while IFS= read -r line; do
-                # Just add the command without description
                 favorites+=("$line")
             done < "$fav_file"
         fi
         
-        # Combine all completions
-        local -a all_completions
-        all_completions=($commands $options $favorites)
-        
-        # First add favorite commands (no descriptions needed)
+        # Only show favorite commands for tab completion
         if [[ ${#favorites} -gt 0 ]]; then
             compadd -Q -a favorites
+        else
+            # If no favorites yet, show a helpful message
+            _message "No favorite commands saved yet. Use 'fav add <command>' to add one."
         fi
-        
-        # Then add commands and options with descriptions
-        _describe -t commands 'commands' commands
-        _describe -t options 'options' options
         
         return 0
     fi
@@ -92,7 +68,7 @@ _fav() {
     esac
 }
 
-# Set completion style to menu select for cycling through options
-zstyle ':completion:*:*:fav:*' menu select
+# Set completion style to inline cycling for fav commands
+zstyle ':completion:*:*:fav:*' menu yes
 
 _fav "$@"

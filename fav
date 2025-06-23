@@ -157,8 +157,8 @@ if type brew &>/dev/null; then
   compinit
 fi
 
-# Enable menu-style completion and shift-tab for reverse cycling
-zstyle ":completion:*" menu select
+# Enable inline cycling (no menu grid) and shift-tab for reverse cycling
+zstyle ":completion:*" menu yes
 bindkey "^[[Z" reverse-menu-complete'
     elif [[ "$shell_type" == "bash" ]]; then
         rc_file="$HOME/.bash_profile"
