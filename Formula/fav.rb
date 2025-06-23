@@ -1,8 +1,8 @@
 class Fav < Formula
   desc "A bash favorite command tool for macOS"
   homepage "https://github.com/chriopter/homebrew-fav"
-  url "https://github.com/chriopter/homebrew-fav/archive/refs/tags/v1.0.0.tar.gz"
-  sha256 "9e393cbf29990b49fed12a4dc575f1ff126abb55eebc0bf88fcb9336d80b9e7d"
+  url "https://github.com/chriopter/homebrew-fav/archive/refs/tags/v1.0.1.tar.gz"
+  sha256 "2799d3dba9b760eb3b602f4849e8ccbb7480b1ebe36114eaf9ba9bcbf1c0fdc5"
   license "MIT"
 
   def install
