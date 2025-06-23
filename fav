@@ -131,7 +131,7 @@ case "$1" in
         init_fav_file
         if [[ -f "$FAV_FILE" ]] && [[ -s "$FAV_FILE" ]]; then
             # Try to find and execute a matching command
-            local found=false
+            found=false
             while IFS= read -r cmd; do
                 if [[ "$cmd" == "$*" ]] || [[ "$cmd" == "$1"* ]]; then
                     echo "Executing: $cmd"
