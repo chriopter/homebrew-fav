@@ -1,0 +1,70 @@
+name: Auto Release
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Get next version
+        id: version
+        run: |
+          # Get latest tag or start at v0.1.0
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+          
+          # Extract version numbers
+          VERSION=${LATEST_TAG#v}
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+          
+          # Increment patch version
+          PATCH=$((PATCH + 1))
+          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
+          
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+      
+      - name: Create tag and release
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git tag ${{ steps.version.outputs.version }}
+          git push origin ${{ steps.version.outputs.version }}
+      
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          release_name: Release ${{ steps.version.outputs.version }}
+          body: Auto-generated release from push to main
+          draft: false
+          prerelease: false
+      
+      - name: Update Homebrew Formula
+        run: |
+          VERSION=${{ steps.version.outputs.version }}
+          TARBALL_URL="https://github.com/${{ github.repository }}/archive/refs/tags/${VERSION}.tar.gz"
+          
+          # Wait a bit for GitHub to process the tag
+          sleep 5
+          
+          # Download tarball and calculate SHA256
+          curl -sL "$TARBALL_URL" -o fav.tar.gz
+          SHA256=$(shasum -a 256 fav.tar.gz | cut -d' ' -f1)
+          
+          # Update formula
+          sed -i "s|url \".*\"|url \"$TARBALL_URL\"|" Formula/fav.rb
+          sed -i "s|sha256 \".*\"|sha256 \"$SHA256\"|" Formula/fav.rb
+          
+          # Commit and push
+          git add Formula/fav.rb
+          git commit -m "Update formula for version ${VERSION}"
+          git push
