@@ -13,24 +13,29 @@ USAGE:
     fav [COMMAND] [OPTIONS]
 
 COMMANDS:
-    add "command"    Add a command to favorites
-    list             List all favorite commands
-    remove <index>   Remove a command by index
-    setup            Configure shell completion
-    help             Show this help message
-    version          Show version information
+    add "command"        Add a command to favorites
+    list                 List all favorite commands
+    remove <index>       Remove a command by index
+    setup                Configure shell completion
+    setup --check        Check if completion is configured
+    setup --shell <sh>   Configure for specific shell (zsh/bash)
+    help                 Show this help message
+    version              Show version information
 
 OPTIONS:
-    -h, --help       Show this help message
-    -v, --version    Show version information
+    -h, --help           Show this help message
+    -v, --version        Show version information
 
 EXAMPLES:
     fav add "git status --porcelain"
-    fav add "docker ps -a"
-    fav list
-    fav remove 2
-    fav setup        # Configure tab completion
-    fav              # Lists all commands
+    fav add docker ps -a         # Quotes optional
+    fav list                     # Show all favorites
+    fav remove 2                 # Remove by index
+    fav setup                    # Auto-configure completion
+    fav setup --check            # Check completion status
+    fav setup --shell zsh        # Configure for zsh
+    fav "docker ps -a"           # Execute exact command
+    fav                          # Lists all commands
 
 For more information, see man fav
 EOF

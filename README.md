@@ -1,92 +1,107 @@
 # fav
 
-A bash favorite command tool for macOS.
+Save your favorite commands and run them with a single word. No more typing long commands over and over.
+
+## What it does
+
+`fav` remembers your commonly used commands so you can run them instantly:
+
+```bash
+# Instead of typing this every time...
+docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+
+# Just type:
+fav docker
+```
+
+✨ **Features**
+- Save any command with `fav add`
+- Run commands with tab completion
+- Commands sync between your Macs via iCloud
+- No configuration files to edit
 
 ## Installation
 
 ```bash
+# Install with Homebrew
 brew install chriopter/fav/fav
-fav setup  # Configure tab completion
+
+# Set up tab completion (one time only)
+fav setup
 ```
 
-That's it! The `fav setup` command will automatically detect your shell and configure tab completion.
-
-### Manual Setup (Optional)
-
-If you prefer to set up completion manually, or if `fav setup` doesn't work for your configuration:
-
-<details>
-<summary>For zsh (default on macOS)</summary>
-
-```bash
-# Add to your ~/.zshrc
-if type brew &>/dev/null; then
-  FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
-  autoload -Uz compinit
-  compinit
-fi
-```
-</details>
-
-<details>
-<summary>For bash</summary>
-
-```bash
-# Add to your ~/.bash_profile or ~/.bashrc
-if type brew &>/dev/null; then
-  HOMEBREW_PREFIX="$(brew --prefix)"
-  if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]; then
-    source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
-  fi
-fi
-```
-</details>
+That's it! You're ready to go.
 
 ## Usage
 
-### Add a favorite command
+### Save your first command
 ```bash
-fav add "git status --porcelain"
-fav add docker ps -a    # quotes optional for simple commands
+fav add "git log --oneline --graph --all"
 ```
 
-### List all favorites
+### See what you've saved
 ```bash
-fav
-# or
 fav list
+# Output:
+# 1. git log --oneline --graph --all
 ```
 
-### Execute a favorite command
+### Run a saved command
 ```bash
-# Use tab completion to see available commands
+# Type fav and press TAB to see all commands
 fav <TAB>
 
-# Execute exact command
-fav "git status --porcelain"
+# Or type the beginning and TAB to complete
+fav git<TAB>
+
+# Press enter to run
+fav "git log --oneline --graph --all"
 ```
 
-### Remove a command
+### Remove commands you don't need
 ```bash
-fav remove 2    # removes the second command
+fav remove 1
 ```
 
-### Other commands
+## Examples
+
+Save your most-used commands:
+
 ```bash
-fav --help      # Show help
-fav --version   # Show version
-man fav         # View manual page
+# Docker commands
+fav add "docker ps -a"
+fav add "docker system prune -a"
+
+# Git workflows  
+fav add "git push origin main"
+fav add "git log --oneline -10"
+
+# System monitoring
+fav add "top -o cpu"
+fav add "df -h"
+
+# Project-specific
+fav add "npm run dev"
+fav add "python manage.py runserver"
 ```
 
-## Features
+## Commands Reference
 
-- **iCloud Sync**: Favorites are stored in iCloud Drive and sync between your Macs
-- **Tab Completion**: Press TAB to see and complete favorite commands
-- **Safe Execution**: Only exact matches are executed (no fuzzy matching)
-- **Simple Management**: Add, list, and remove commands easily
+- `fav` - List all saved commands
+- `fav add <command>` - Save a new command
+- `fav remove <number>` - Remove a command
+- `fav setup` - Configure tab completion
+- `fav --help` - Show help
+- `fav --version` - Show version
+
+## Advanced
+
+- Commands are stored in `~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/fav_favorites.txt`
+- They sync automatically between Macs signed into the same iCloud account
+- Use `man fav` for the full manual
 
 ## Development
 
-Pushing to the main branch automatically triggers a release workflow. The workflow increments the version number, creates a GitHub release using your commit message as the description, and updates the Homebrew formula. This makes releasing new versions as simple as pushing to main with a meaningful commit message.
+Pushing to main automatically creates a new release. See the `.github/workflows` directory for details.
 
-**Caution:** This code is AI-generated and should be reviewed before use in production environments.
+**Note:** This tool is AI-generated and should be reviewed before use in production environments.
