@@ -54,6 +54,6 @@ fav doc<TAB>
 
 ## Development
 
-Pushing to main automatically creates a new release. See the `.github/workflows` directory for details.
+Pushing to main creates a release. Use `[major]`, `[minor]`, or `[v1.0.0]` in commit messages to control versioning.
 
 **Note:** This tool is AI-generated and should be reviewed before use in production environments.

@@ -25,13 +25,29 @@ jobs:
           VERSION=${LATEST_TAG#v}
           IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
           
-          # Increment patch version
-          PATCH=$((PATCH + 1))
-          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
-          
           # Get commit message from the latest commit
           COMMIT_MESSAGE=$(git log -1 --pretty=%s)
           COMMIT_BODY=$(git log -1 --pretty=%b)
+          
+          # Check for version bump instructions in commit message
+          if [[ "$COMMIT_MESSAGE" =~ \[major\] ]] || [[ "$COMMIT_BODY" =~ \[major\] ]]; then
+            MAJOR=$((MAJOR + 1))
+            MINOR=0
+            PATCH=0
+          elif [[ "$COMMIT_MESSAGE" =~ \[minor\] ]] || [[ "$COMMIT_BODY" =~ \[minor\] ]]; then
+            MINOR=$((MINOR + 1))
+            PATCH=0
+          elif [[ "$COMMIT_MESSAGE" =~ \[v([0-9]+)\.([0-9]+)\.([0-9]+)\] ]]; then
+            # Allow explicit version setting like [v1.0.0]
+            MAJOR=${BASH_REMATCH[1]}
+            MINOR=${BASH_REMATCH[2]}
+            PATCH=${BASH_REMATCH[3]}
+          else
+            # Default: increment patch version
+            PATCH=$((PATCH + 1))
+          fi
+          
+          NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
           
           # Combine subject and body for full message
           if [ -n "$COMMIT_BODY" ]; then
