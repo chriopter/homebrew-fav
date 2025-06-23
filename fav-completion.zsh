@@ -95,8 +95,4 @@ _fav() {
 # Set completion style to menu select for cycling through options
 zstyle ':completion:*:*:fav:*' menu select
 
-# Enable shift-tab for reverse menu completion
-# This is a global setting but useful for fav
-bindkey '^[[Z' reverse-menu-complete
-
 _fav "$@"
