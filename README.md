@@ -18,7 +18,7 @@ Your commands sync between all your Macs automatically via iCloud Drive.
 
 ```bash
 brew install chriopter/fav/fav
-fav setup
+fav setup # To setup autocompletion 
 ```
 
 ## Use
@@ -26,6 +26,12 @@ fav setup
 ```bash
 # Save a command
 fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
+
+# Show all Favs with Index
+fav
+
+# Delete a fav by Index
+fav remove 1
 
 # Type and TAB to complete
 fav doc<TAB>
