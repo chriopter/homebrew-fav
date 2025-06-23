@@ -15,7 +15,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
       
-      - name: Get next version
+      - name: Get next version and commit message
         id: version
         run: |
           # Get latest tag or start at v0.1.0
@@ -29,7 +29,21 @@ jobs:
           PATCH=$((PATCH + 1))
           NEW_VERSION="v${MAJOR}.${MINOR}.${PATCH}"
           
+          # Get commit message from the latest commit
+          COMMIT_MESSAGE=$(git log -1 --pretty=%s)
+          COMMIT_BODY=$(git log -1 --pretty=%b)
+          
+          # Combine subject and body for full message
+          if [ -n "$COMMIT_BODY" ]; then
+            FULL_MESSAGE="$COMMIT_MESSAGE"$'\n\n'"$COMMIT_BODY"
+          else
+            FULL_MESSAGE="$COMMIT_MESSAGE"
+          fi
+          
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "message<<EOF" >> $GITHUB_OUTPUT
+          echo "$FULL_MESSAGE" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
           echo "New version: $NEW_VERSION"
       
       - name: Create tag and release
@@ -46,7 +60,7 @@ jobs:
         with:
           tag_name: ${{ steps.version.outputs.version }}
           release_name: Release ${{ steps.version.outputs.version }}
-          body: Auto-generated release from push to main
+          body: ${{ steps.version.outputs.message }}
           draft: false
           prerelease: false
       
