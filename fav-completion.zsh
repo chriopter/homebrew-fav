@@ -20,7 +20,8 @@ _fav() {
         
         # Only show favorite commands for tab completion
         if [[ ${#favorites} -gt 0 ]]; then
-            compadd -Q -a favorites
+            # Add case-insensitive matching
+            compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a favorites
         else
             # If no favorites yet, show a helpful message
             _message "No favorite commands saved yet. Use 'fav add <command>' to add one."
