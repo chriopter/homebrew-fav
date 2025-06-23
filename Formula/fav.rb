@@ -7,9 +7,11 @@ class Fav < Formula
 
   def install
     bin.install "fav"
+    man1.install "fav.1"
+    bash_completion.install "fav-completion.bash" => "fav"
   end
 
   test do
-    assert_equal "ls", shell_output("#{bin}/fav").chomp
+    system "#{bin}/fav", "--version"
   end
 end

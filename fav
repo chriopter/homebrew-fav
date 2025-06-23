@@ -1,3 +1,126 @@
 #!/usr/bin/env bash
 
-echo "hello world v2"
+VERSION="0.1.0"
+FAV_FILE="$HOME/.fav_favorites.txt"
+
+show_help() {
+    cat << EOF
+fav - A bash favorite command tool for macOS
+
+USAGE:
+    fav [COMMAND] [OPTIONS]
+
+COMMANDS:
+    add "command"    Add a command to favorites
+    list             List all favorite commands
+    remove <index>   Remove a command by index
+    help             Show this help message
+    version          Show version information
+
+OPTIONS:
+    -h, --help       Show this help message
+    -v, --version    Show version information
+
+EXAMPLES:
+    fav add "git status --porcelain"
+    fav add "docker ps -a"
+    fav list
+    fav remove 2
+    fav              # Lists all commands
+
+For more information, see man fav
+EOF
+}
+
+show_version() {
+    echo "fav version $VERSION"
+}
+
+init_fav_file() {
+    if [[ ! -f "$FAV_FILE" ]]; then
+        touch "$FAV_FILE"
+    fi
+}
+
+add_command() {
+    if [[ -z "$1" ]]; then
+        echo "Error: No command provided"
+        echo "Usage: fav add \"command with arguments\""
+        exit 1
+    fi
+    
+    init_fav_file
+    echo "$1" >> "$FAV_FILE"
+    echo "Added to favorites: $1"
+}
+
+list_commands() {
+    init_fav_file
+    
+    if [[ ! -s "$FAV_FILE" ]]; then
+        echo "No favorite commands saved yet."
+        echo "Use 'fav add \"command\"' to add a command."
+        return
+    fi
+    
+    echo "Favorite commands:"
+    local index=1
+    while IFS= read -r cmd; do
+        echo "  $index. $cmd"
+        ((index++))
+    done < "$FAV_FILE"
+}
+
+remove_command() {
+    if [[ -z "$1" ]] || ! [[ "$1" =~ ^[0-9]+$ ]]; then
+        echo "Error: Please provide a valid index number"
+        echo "Usage: fav remove <index>"
+        exit 1
+    fi
+    
+    init_fav_file
+    
+    if [[ ! -s "$FAV_FILE" ]]; then
+        echo "No favorite commands to remove."
+        exit 1
+    fi
+    
+    local total_lines=$(wc -l < "$FAV_FILE")
+    
+    if [[ $1 -lt 1 ]] || [[ $1 -gt $total_lines ]]; then
+        echo "Error: Index $1 is out of range (1-$total_lines)"
+        exit 1
+    fi
+    
+    local removed_cmd=$(sed -n "${1}p" "$FAV_FILE")
+    sed -i '' "${1}d" "$FAV_FILE"
+    echo "Removed from favorites: $removed_cmd"
+}
+
+case "$1" in
+    -h|--help|help)
+        show_help
+        ;;
+    -v|--version|version)
+        show_version
+        ;;
+    add)
+        shift
+        add_command "$@"
+        ;;
+    list)
+        list_commands
+        ;;
+    remove)
+        shift
+        remove_command "$1"
+        ;;
+    "")
+        list_commands
+        ;;
+    *)
+        echo "Error: Unknown command '$1'"
+        echo "Use 'fav --help' for usage information"
+        exit 1
+        ;;
+esac
