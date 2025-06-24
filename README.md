@@ -8,44 +8,34 @@ Never type that long command again. Save it once, press TAB, and go.
 
 Remember that Docker command with all the formatting flags? Or that Git log with the perfect options? You google it, copy-paste it, then forget it again next week.
 
-## The Solution
+## Quick Start
 
-`fav` saves your complex commands and makes them available with tab completion. Your commands sync across all your Macs via iCloud Drive automatically.
-
-```bash
-# Save once
-fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
-
-# Use forever - just type and TAB
-fav doc<TAB>
-# → fav "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
-# Press ENTER to run
-```
-
-## Install
-
+Install in seconds:
 ```bash
 brew install chriopter/fav/fav
 fav setup  # Enable tab completion
 ```
 
-## Quick Start
-
+Save your complex commands once:
 ```bash
-# Save a command
+fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
 fav add "git log --graph --pretty=format:'%C(yellow)%h%C(reset) %s %C(green)'"
-
-# List your commands
-fav
-  1. docker ps -a --format...
-  2. git log --graph --pretty...
-
-# Execute by typing part of it + TAB
-fav git<TAB>  # Auto-completes and runs your git command
-
-# Remove by number
-fav remove 1
 ```
+
+Use them forever with tab completion:
+```bash
+fav doc<TAB>  # Auto-completes your docker command
+fav git<TAB>  # Auto-completes your git command
+# Press ENTER to run
+```
+
+Manage your collection:
+```bash
+fav           # List all saved commands
+fav remove 1  # Remove by number
+```
+
+That's it! Your commands sync across all your Macs via iCloud automatically.
 
 ## Features
 
@@ -63,6 +53,15 @@ fav remove 1
 - Comprehensive test suite with 20+ automated tests
 - Robust error handling with automatic backups
 
+### 📁 How It Works
+Your commands are stored in a simple text file in iCloud Drive, making them automatically available on all your Macs. The intelligent tab completion reads this file and matches your input.
+
+```
+~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/
+├── fav_favorites.txt    # Your saved commands
+└── fav_config.txt       # Security settings
+```
+
 ## Commands
 
 - `fav add "command"` - Save a new favorite
@@ -72,16 +71,6 @@ fav remove 1
 - `fav config` - Security settings (disable/enable execution)
 - `fav setup` - Configure shell completion
 - `fav --help` - Show all options
-
-## How It Works
-
-Your commands are stored in a simple text file in iCloud Drive, making them automatically available on all your Macs. The intelligent tab completion reads this file and matches your input, even with typos.
-
-```
-~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/
-├── fav_favorites.txt    # Your saved commands
-└── fav_config.txt       # Security settings
-```
 
 ## Troubleshooting
 
@@ -96,14 +85,7 @@ Your commands are stored in a simple text file in iCloud Drive, making them auto
 
 ## Development
 
-### Creating a Release
-
-1. Update `VERSION="1.2.0"` in the `fav` script
-2. Update the URL version in `Formula/fav.rb` to match
-3. Commit both: `git commit -m "Release v1.2.0"`
-4. Push to main - GitHub Actions handles the rest
-
-### Contributing
+To release: Update VERSION in both `fav` script and `Formula/fav.rb` URL, commit, and push.
 
 Tests run automatically on every push. Run locally with:
 ```bash
