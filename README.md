@@ -18,7 +18,7 @@ fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
 
 # Use forever - just type and TAB
 fav doc<TAB>
-# → fav "docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
+# → fav "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
 # Press ENTER to run
 ```
 
