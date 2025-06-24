@@ -17,13 +17,11 @@ fav setup  # Enable tab completion
 Save your complex commands once:
 ```bash
 fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
-fav add "git log --graph --pretty=format:'%C(yellow)%h%C(reset) %s %C(green)'"
 ```
 
 Use them forever with tab completion:
 ```bash
 fav doc<TAB>  # Auto-completes your docker command
-fav git<TAB>  # Auto-completes your git command
 # Press ENTER to run
 ```
 
