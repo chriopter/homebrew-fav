@@ -1,0 +1,45 @@
+name: Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Install bats
+      run: |
+        brew tap bats-core/bats-core
+        brew install bats-core
+    
+    - name: Run tests
+      run: |
+        chmod +x ./fav
+        bats test/*.bats
+    
+    - name: Test version consistency
+      run: |
+        # Extract version from script
+        SCRIPT_VERSION=$(./fav --version | cut -d' ' -f3)
+        # Extract version from formula
+        FORMULA_VERSION=$(grep -E '^\s*url.*tags/v' Formula/fav.rb | sed -E 's/.*tags\/v([0-9.]+).*/\1/')
+        
+        echo "Script version: $SCRIPT_VERSION"
+        echo "Formula version: $FORMULA_VERSION"
+        
+        if [ "$SCRIPT_VERSION" != "$FORMULA_VERSION" ]; then
+          echo "Error: Version mismatch between script and formula"
+          exit 1
+        fi
+    
+    - name: Shellcheck
+      run: |
+        brew install shellcheck
+        shellcheck fav
+        shellcheck fav-completion.bash

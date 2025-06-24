@@ -7,7 +7,7 @@ _fav_completions() {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     
     # Base commands and options
-    local commands="add list remove help version"
+    local commands="add list remove config setup help version"
     local options="-h --help -v --version"
     
     # Define the favorites file location
@@ -26,18 +26,20 @@ _fav_completions() {
                     local favorites=()
                     while IFS= read -r line; do
                         # Add the command to our array
-                        favorites+=("$line")
+                        [[ -n "$line" ]] && favorites+=("$line")
                     done < "$fav_file"
                     
                     # First, try to complete base commands
                     local base_completions=( $(compgen -W "${commands}" -- "${cur}") )
                     
-                    # Then, add favorite commands that start with the current word
+                    # Then, add favorite commands that match (case-insensitive)
+                    shopt -s nocasematch
                     for fav in "${favorites[@]}"; do
                         if [[ "$fav" == "$cur"* ]]; then
                             COMPREPLY+=("$fav")
                         fi
                     done
+                    shopt -u nocasematch
                     
                     # Combine base commands and favorites
                     COMPREPLY+=("${base_completions[@]}")
@@ -50,13 +52,30 @@ _fav_completions() {
         remove)
             # For remove command, suggest index numbers based on the number of favorites
             if [[ -f "$fav_file" ]] && [[ -s "$fav_file" ]]; then
-                local num_lines=$(wc -l < "$fav_file")
-                local indices=$(seq 1 $num_lines)
+                local num_lines
+                num_lines=$(wc -l < "$fav_file")
+                local indices
+                indices=$(seq 1 $num_lines)
                 COMPREPLY=( $(compgen -W "${indices}" -- ${cur}) )
             fi
             ;;
         add)
             # No completion after 'add' - user needs to type their command
+            ;;
+        config)
+            # Complete config subcommands
+            local config_cmds="disable-execution enable-execution status"
+            COMPREPLY=( $(compgen -W "${config_cmds}" -- ${cur}) )
+            ;;
+        setup)
+            # Complete setup options
+            if [[ ${cur} == -* ]]; then
+                local setup_opts="--check --shell"
+                COMPREPLY=( $(compgen -W "${setup_opts}" -- ${cur}) )
+            elif [[ ${prev} == "--shell" ]]; then
+                local shells="bash zsh"
+                COMPREPLY=( $(compgen -W "${shells}" -- ${cur}) )
+            fi
             ;;
         *)
             # Default: no completion
