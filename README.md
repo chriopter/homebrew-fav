@@ -2,14 +2,14 @@
 
 Never type that long command again.
 
-Save commands with 'fav add', access with 'fav comm....‘ and press Tab. 
+Save commands with 'fav add', access with 'fav comm....‘ and press Tab. Syncs between Macs. 
 
 <img src="https://github.com/user-attachments/assets/2bd04cfe-9dff-4080-a8ca-2bfd0a3f5893" width="300">
 
 
 ## Quick Start
 
-Install in seconds:
+Install:
 ```bash
 brew install chriopter/fav/fav
 fav setup  # Enable tab completion
@@ -22,8 +22,7 @@ fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
 
 Use them forever with tab completion:
 ```bash
-fav doc<TAB>  # Auto-completes your docker command
-# Press ENTER to run
+fav doc<TAB>  # Auto-completes your docker command & Press ENTER to run
 ```
 
 Manage your collection:
@@ -39,19 +38,16 @@ That's it! Your commands sync across all your Macs via iCloud automatically.
 ### 🚀 Core Features
 - **Tab completion** - Type a few letters, press TAB, get your full command
 - **iCloud sync** - Your commands are available on all your Macs instantly
-- **Case-insensitive matching** - Type `DOC` or `doc`, both find "docker"
 - **Direct execution** - Run commands right from `fav` or just view them
 - **Works with bash and zsh** - No need to change your shell
 
 ### 🛡️ Security & Quality
-- **Validation scans for dangerous patterns** before saving or executing (like `; rm -rf $HOME`)
-- Detects 30+ risky patterns: `rm -rf`, `dd`, `curl|sh`, `chmod 777`, and more
-- Shows warnings but lets you proceed if you know what you're doing
-- Comprehensive test suite with 20+ automated tests
+- Warns from saving and executing dangerous patterns before saving or executing (like `; rm -rf $HOME`)
+- CI Tested code with 20+ automated tests
 - Robust error handling with automatic backups
 
 ### 📁 How It Works
-Your commands are stored in a simple text file in iCloud Drive, making them automatically available on all your Macs. The intelligent tab completion reads this file and matches your input.
+Your commands are stored in a simple text file in iCloud Drive. The intelligent tab completion reads this file and matches your input.
 
 ```
 ~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/
