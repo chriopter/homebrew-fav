@@ -1,139 +1,118 @@
 # fav
 
-Save your favorite commands once. Run them with tab completion forever.
+Never type that long command again. Save it once, press TAB, and go.
 
 <img src="https://github.com/user-attachments/assets/2bd04cfe-9dff-4080-a8ca-2bfd0a3f5893" width="300">
 
-Remember that Docker command with all the formatting flags? Or that Git log with the perfect options? Save them with `fav` and never type them again. Just press TAB and go.
+## The Problem
+
+Remember that Docker command with all the formatting flags? Or that Git log with the perfect options? You google it, copy-paste it, then forget it again next week.
+
+## The Solution
+
+`fav` saves your complex commands and makes them available with tab completion. Your commands sync across all your Macs via iCloud Drive automatically.
 
 ```bash
-# Add command as fav:
-fav add docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+# Save once
+fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
 
-# After: just three letters + TAB 🚀
-fav dock<TAB>
+# Use forever - just type and TAB
+fav doc<TAB>
+# → fav "docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
+# Press ENTER to run
 ```
-
-Your commands sync between all your Macs automatically via iCloud Drive.
 
 ## Install
 
 ```bash
 brew install chriopter/fav/fav
-fav setup # To setup autocompletion 
+fav setup  # Enable tab completion
 ```
 
-## Use
+## Quick Start
 
 ```bash
 # Save a command
-fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
-# Works without "-marks as well but might not escapce correctly.
+fav add "git log --graph --pretty=format:'%C(yellow)%h%C(reset) %s %C(green)(%cr)%C(reset)'"
 
-# Show all Favs with Index
+# List your commands
 fav
+  1. docker ps -a --format...
+  2. git log --graph --pretty...
 
-# Delete a fav by Index
+# Execute by typing part of it + TAB
+fav git<TAB>  # Auto-completes and runs your git command
+
+# Remove by number
 fav remove 1
-
-# Type and TAB to complete
-fav doc<TAB>
-# → fav "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
-
-# Press ENTER to run
 ```
-
-## Commands
-
-- `fav add <command>` - Save a command (with validation and duplicate detection)
-- `fav` - List saved commands  
-- `fav remove <n>` - Remove by number
-- `fav config <action>` - Configure security settings
-  - `disable-execution` - Disable direct command execution
-  - `enable-execution` - Enable direct command execution (default)
-  - `status` - Show current configuration
-- `fav <TAB>` - See all commands (with case-insensitive matching)
-- `fav --help` - Show help
-- `man fav` - Read manual
-- Commands stored in iCloud Drive at `~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/`
 
 ## Features
 
-### Security
-- Command validation prevents injection attacks
-- Detects 30+ dangerous command patterns including rm, dd, mkfs etc.
-- Confirmation prompts for risky operations  
-- Option to disable command execution entirely
-- All commands are validated before being saved
+### 🛡️ Security First
+- Validates commands before saving or executing
+- Detects 30+ dangerous patterns (rm -rf, dd, curl|sh, etc.)
+- Optional confirmation prompts for risky commands
+- Can disable direct execution entirely with `fav config disable-execution`
 
-### Quality Assurance
-- Comprehensive test suite with automated testing on every push
-- Code quality checks with shellcheck
-- Version consistency validation
+### 🧪 Battle-Tested
+- Comprehensive test suite with 20+ automated tests
+- Shellcheck validated for code quality
+- Robust error handling with automatic backups
 
-## Technical Details
+### 🚀 Performance
+- Optimized for large command lists (100+ commands)
+- Case-insensitive tab completion
+- Works seamlessly with both bash and zsh
 
-### How It Works
+## Commands
 
-`fav` is a bash script that manages a plain text file of your favorite commands with intelligent shell integration:
+- `fav add "command"` - Save a new favorite
+- `fav` - List all favorites with numbers  
+- `fav remove <n>` - Remove by number
+- `fav <partial><TAB>` - Tab complete and execute
+- `fav config` - Security settings (disable/enable execution)
+- `fav setup` - Configure shell completion
+- `fav --help` - Show all options
 
-1. **Storage**: Commands are stored one-per-line in `~/Library/Mobile Documents/.../fav_favorites.txt`
-   - Uses iCloud Drive for automatic sync between Macs
-   - Config stored separately in `fav_config.txt`
+## How It Works
 
-2. **Tab Completion Magic**: 
-   - Shell-specific completion scripts (`fav-completion.bash/zsh`) 
-   - Reads favorites file and matches against your input
-   - Case-insensitive matching with inline cycling (no dropdown)
-   - `fav doc<TAB>` → finds "docker ps..." command
+Your commands are stored in a simple text file in iCloud Drive, making them automatically available on all your Macs. The intelligent tab completion reads this file and matches your input, even with typos.
 
-3. **Execution Flow**:
-   ```
-   fav "docker ps -a"
-   ├── Check if execution disabled
-   ├── Grep for exact match in favorites
-   ├── Validate command (even saved ones)
-   ├── Warn if dangerous pattern detected
-   └── Execute with eval (or cancel)
-   ```
-
-4. **Security Validation**:
-   - Blocks command injection: `echo test; rm -rf $HOME`
-   - Detects 30+ dangerous patterns across 6 categories:
-     - File/directory destruction
-     - Disk/filesystem operations  
-     - System file modifications
-     - Permission changes
-     - Remote code execution
-     - System state changes
-   - Two-stage validation: when adding AND before executing
-
-5. **Performance Optimizations**:
-   - Uses `awk` for 50+ commands (faster than bash loops)
-   - Grep-first lookup instead of reading entire file
-   - Efficient duplicate detection for large files
-
-6. **Error Handling**:
-   - Creates timestamped backups before destructive operations
-   - Validates iCloud Drive exists and is writable
-   - Handles both BSD (macOS) and GNU sed syntax
-   - Restores from backup if operations fail
+```
+~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/
+├── fav_favorites.txt    # Your saved commands
+└── fav_config.txt       # Security settings
+```
 
 ## Troubleshooting
 
-- **Tab completion not working?** Run `fav setup` and restart your terminal
-- **Commands not syncing?** Ensure iCloud Drive is enabled and synced
-- **Permission errors?** Check that iCloud Drive folder exists and is writable
+**Tab completion not working?** 
+- Run `fav setup` and restart your terminal
+
+**Commands not syncing?** 
+- Ensure iCloud Drive is enabled on all devices
+
+**Getting permission errors?** 
+- Check that iCloud Drive is accessible: `ls ~/Library/Mobile\ Documents/`
 
 ## Development
 
-Releases are triggered when the VERSION in the `fav` script is incremented. The release process:
-1. Checks if VERSION changed from latest tag
-2. Runs all tests (must pass)
-3. Creates GitHub release and updates Homebrew formula
+### Creating a Release
 
-Tests are run automatically on every push to ensure code quality.
+1. Update `VERSION="1.2.0"` in the `fav` script
+2. Update the URL version in `Formula/fav.rb` to match
+3. Commit both: `git commit -m "Release v1.2.0"`
+4. Push to main - GitHub Actions handles the rest
 
+### Contributing
 
+Tests run automatically on every push. Run locally with:
+```bash
+bats test/*.bats
+shellcheck fav
+```
+
+---
 
 **Note:** This tool is AI-generated and should be reviewed before use in production environments.

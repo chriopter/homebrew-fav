@@ -10,66 +10,53 @@ permissions:
   contents: write  # Needed for release creation
 
 jobs:
-  check-version:
+  check-release:
     runs-on: ubuntu-latest
     outputs:
-      should_release: ${{ steps.version_check.outputs.should_release }}
-      new_version: ${{ steps.version_check.outputs.new_version }}
+      should_release: ${{ steps.check.outputs.should_release }}
+      version: ${{ steps.check.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       
-      - name: Check if version changed
-        id: version_check
+      - name: Check if release needed
+        id: check
         run: |
           # Extract version from script
           SCRIPT_VERSION=$(grep '^VERSION=' fav | cut -d'"' -f2)
           echo "Script version: $SCRIPT_VERSION"
           
-          # Get latest tag or default to 0.0.0
+          # Extract version from formula URL
+          FORMULA_VERSION=$(grep -E '^\s*url' Formula/fav.rb | sed -E 's/.*tags\/v([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+          echo "Formula version: $FORMULA_VERSION"
+          
+          # Get latest tag
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           LATEST_VERSION=${LATEST_TAG#v}
-          echo "Latest tag version: $LATEST_VERSION"
+          echo "Latest tag: $LATEST_VERSION"
           
-          # Compare versions
-          if [ "$SCRIPT_VERSION" != "$LATEST_VERSION" ]; then
-            echo "Version changed from $LATEST_VERSION to $SCRIPT_VERSION"
-            echo "should_release=true" >> $GITHUB_OUTPUT
-            echo "new_version=v$SCRIPT_VERSION" >> $GITHUB_OUTPUT
-          else
-            echo "Version unchanged at $SCRIPT_VERSION"
+          # Check if versions match and are different from latest tag
+          if [ "$SCRIPT_VERSION" != "$FORMULA_VERSION" ]; then
+            echo "::warning::Version mismatch! Script: $SCRIPT_VERSION, Formula: $FORMULA_VERSION"
+            echo "::warning::No release will be created. Please update both versions to match."
             echo "should_release=false" >> $GITHUB_OUTPUT
+          elif [ "$SCRIPT_VERSION" = "$LATEST_VERSION" ]; then
+            echo "Version $SCRIPT_VERSION already released"
+            echo "should_release=false" >> $GITHUB_OUTPUT
+          else
+            echo "✅ New release needed for version $SCRIPT_VERSION"
+            echo "should_release=true" >> $GITHUB_OUTPUT
+            echo "version=v$SCRIPT_VERSION" >> $GITHUB_OUTPUT
           fi
 
   test:
-    needs: check-version
+    needs: check-release
     uses: ./.github/workflows/test-reusable.yml
 
-  verify-version:
-    needs: check-version
-    if: needs.check-version.outputs.should_release == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Verify version consistency
-        run: |
-          # Check that VERSION in script matches what we're about to release
-          SCRIPT_VERSION=$(grep '^VERSION=' fav | cut -d'"' -f2)
-          EXPECTED_VERSION="${{ needs.check-version.outputs.new_version }}"
-          EXPECTED_VERSION=${EXPECTED_VERSION#v}
-          
-          if [ "$SCRIPT_VERSION" != "$EXPECTED_VERSION" ]; then
-            echo "Error: Version mismatch!"
-            echo "Script: $SCRIPT_VERSION"
-            echo "Expected: $EXPECTED_VERSION"
-            exit 1
-          fi
-
   release:
-    needs: [check-version, test, verify-version]
-    if: needs.check-version.outputs.should_release == 'true'
+    needs: [check-release, test]
+    if: needs.check-release.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -80,11 +67,9 @@ jobs:
       - name: Get commit message
         id: commit
         run: |
-          # Get commit message from the latest commit
           COMMIT_MESSAGE=$(git log -1 --pretty=%s)
           COMMIT_BODY=$(git log -1 --pretty=%b)
           
-          # Combine subject and body for full message
           if [ -n "$COMMIT_BODY" ]; then
             FULL_MESSAGE="$COMMIT_MESSAGE"$'\n\n'"$COMMIT_BODY"
           else
@@ -99,40 +84,36 @@ jobs:
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
-          git tag ${{ needs.check-version.outputs.new_version }}
-          git push origin ${{ needs.check-version.outputs.new_version }}
+          git tag ${{ needs.check-release.outputs.version }}
+          git push origin ${{ needs.check-release.outputs.version }}
       
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ needs.check-version.outputs.new_version }}
-          release_name: Release ${{ needs.check-version.outputs.new_version }}
+          tag_name: ${{ needs.check-release.outputs.version }}
+          release_name: Release ${{ needs.check-release.outputs.version }}
           body: ${{ steps.commit.outputs.message }}
           draft: false
           prerelease: false
       
-      - name: Update Homebrew Formula
+      - name: Update Formula SHA256
         run: |
-          VERSION=${{ needs.check-version.outputs.new_version }}
+          VERSION=${{ needs.check-release.outputs.version }}
           TARBALL_URL="https://github.com/chriopter/homebrew-fav/archive/refs/tags/${VERSION}.tar.gz"
           
-          # Wait a bit for GitHub to process the tag
+          # Wait for GitHub to process the release
           sleep 5
           
-          # Download tarball and calculate SHA256
+          # Download and calculate SHA256
           curl -sL "$TARBALL_URL" -o fav.tar.gz
           SHA256=$(shasum -a 256 fav.tar.gz | cut -d' ' -f1)
           
-          # Update formula version (remove 'v' prefix)
-          VERSION_NUM=${VERSION#v}
-          
-          # Update formula
-          sed -i "s|url \".*\"|url \"$TARBALL_URL\"|" Formula/fav.rb
+          # Update only the SHA256 in formula
           sed -i "s|sha256 \".*\"|sha256 \"$SHA256\"|" Formula/fav.rb
           
           # Commit and push
           git add Formula/fav.rb
-          git commit -m "Update formula for version ${VERSION}"
+          git commit -m "Update formula SHA256 for ${VERSION}"
           git push

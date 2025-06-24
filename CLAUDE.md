@@ -33,16 +33,18 @@ shellcheck fav-completion.bash
 ```
 
 ### Release Process
-Releases are version-driven and automated via GitHub Actions:
-1. Update VERSION in the `fav` script
-2. Push to main branch
-3. GitHub Actions automatically:
-   - Detects version change by comparing to latest tag
+Releases are automated via GitHub Actions when you update versions:
+1. Update VERSION in the `fav` script (e.g., "1.2.0")
+2. Update version in Formula/fav.rb URL to match (e.g., "v1.2.0.tar.gz")
+3. Commit both changes together
+4. Push to main branch
+5. GitHub Actions automatically:
+   - Verifies both versions match
    - Runs full test suite (must pass)
-   - Creates GitHub release
-   - Updates Homebrew formula with new version and SHA256
+   - Creates GitHub release and tag
+   - Updates the SHA256 in the Homebrew formula
 
-**Important**: Releases only occur when VERSION in script is higher than the latest git tag.
+**Why this approach**: By updating both versions manually, you have explicit control over when releases happen. The workflow only needs to update the SHA256 after creating the release.
 
 ### Development Workflow
 1. Edit the `fav` script directly
@@ -97,7 +99,7 @@ All destructive operations create backups that can be restored on failure.
    - Shellcheck for code quality
 
 6. **Version Management**: 
-   - VERSION in script is the single source of truth
-   - Release workflow reads version from script
-   - Only releases when version increases
-   - Formula automatically updated to match
+   - Versions must be updated in two places: script VERSION and formula URL
+   - Release triggered when both match AND differ from latest tag
+   - This gives explicit control over when releases happen
+   - Formula SHA256 is automatically calculated after release
