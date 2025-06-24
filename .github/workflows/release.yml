@@ -7,6 +7,8 @@ on:
 jobs:
   check-version:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       should_release: ${{ steps.version_check.outputs.should_release }}
       new_version: ${{ steps.version_check.outputs.new_version }}
@@ -41,6 +43,8 @@ jobs:
     needs: check-version
     if: needs.check-version.outputs.should_release == 'true'
     runs-on: macos-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       
