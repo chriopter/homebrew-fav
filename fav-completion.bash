@@ -9,7 +9,7 @@ _fav_completions() {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     
     # Base commands and options
-    local commands="add list remove config setup help version"
+    local commands="add list remove setup help version"
     local options="-h --help -v --version"
     
     # Define the favorites file location
@@ -63,11 +63,6 @@ _fav_completions() {
             ;;
         add)
             # No completion after 'add' - user needs to type their command
-            ;;
-        config)
-            # Complete config subcommands
-            local config_cmds="disable-execution enable-execution status"
-            COMPREPLY=( $(compgen -W "${config_cmds}" -- ${cur}) )
             ;;
         setup)
             # Complete setup options

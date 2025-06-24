@@ -2,7 +2,7 @@
 
 Never type that long command again.
 
-Save commands with 'fav add yourcommand', access with 'fav yourc....‘ and press Tab. Syncs between Macs. 
+Save commands with 'fav add', access with 'fav <TAB>'. Syncs between Macs.
 
 <img src="https://github.com/user-attachments/assets/2bd04cfe-9dff-4080-a8ca-2bfd0a3f5893" width="300">
 
@@ -41,18 +41,16 @@ That's it! Your commands sync across all your Macs via iCloud automatically.
 - **Direct execution** - Run commands right from `fav` or just view them
 - **Works with bash and zsh** - No need to change your shell
 
-### 🛡️ Security & Quality
-- Warns from saving and executing dangerous patterns before saving or executing (like `; rm -rf $HOME`)
-- CI Tested code with 20+ automated tests
-- Robust error handling and validation
+### 💎 Quality
+- Minimal, clean codebase (KISS principle)
+- Tested with automated tests
 
 ### 📁 How It Works
 Your commands are stored in a simple text file in iCloud Drive. The intelligent tab completion reads this file and matches your input.
 
 ```
 ~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/
-├── fav_favorites.txt    # Your saved commands
-└── fav_config.txt       # Security settings
+└── fav_favorites.txt    # Your saved commands
 ```
 
 ## Commands
@@ -61,24 +59,16 @@ Your commands are stored in a simple text file in iCloud Drive. The intelligent 
 - `fav` - List all favorites with numbers  
 - `fav remove <n>` - Remove by number
 - `fav <partial><TAB>` - Tab complete and execute
-- `fav config` - Security settings (disable/enable execution) - Synced setting
 - `fav setup` - Configure shell completion
 - `fav --help` - Show all options
 
 ## Troubleshooting
 
-**Tab completion not working?** 
-- Run `fav setup` and restart your terminal
-
-**Commands not syncing?** 
-- Ensure iCloud Drive is enabled on all devices
-
-**Getting permission errors?** 
-- Check that iCloud Drive is accessible: `ls ~/Library/Mobile\ Documents/`
+- Tab Completion: Run `fav setup` and restart your terminal & Check that iCloud Drive is accessible: `ls ~/Library/Mobile\ Documents/`
 
 ## Development
 
-To release: Update VERSION in both `fav` script and `Formula/fav.rb` URL, commit, and push.
+To release: Update VERSION in `fav` script, commit, and push. CI will auto-update the formula.
 
 Tests run automatically on every push. Run locally with:
 ```bash

@@ -1,113 +1,10 @@
 #!/usr/bin/env bash
 
-VERSION="1.1.1"
+VERSION="1.2.0"
 ICLOUD_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs"
 FAV_DIR="${FAV_DIR:-$ICLOUD_DIR/homebrew-fav}"
 FAV_FILE="${FAV_FILE:-$FAV_DIR/fav_favorites.txt}"
-CONFIG_FILE="${CONFIG_FILE:-$FAV_DIR/fav_config.txt}"
-
-# Security settings
-DESTRUCTIVE_PATTERNS=(
-    # File/Directory Destruction
-    "rm -rf"
-    "rm -fr"
-    "find.*-delete"
-    "find.*-exec rm"
-    "shred"
-    
-    # Disk/Filesystem Operations
-    "dd if="
-    "dd of=/dev"
-    "mkfs"
-    "format"
-    "fdisk"
-    "parted"
-    "wipefs"
-    
-    # System Files Modification
-    "> /dev/"
-    "> /etc/"
-    "> /sys/"
-    ">/boot/"
-    
-    # Permission/Ownership Changes
-    "chmod -R 777"
-    "chmod 777"
-    "chown -R"
-    "chmod -R 000"
-    
-    # Remote Code Execution
-    "curl.*\|.*sh"
-    "curl.*\|.*bash"
-    "wget.*\|.*sh"
-    "wget.*\|.*bash"
-    "nc.*-e"
-    "bash.*<.*tcp"
-    
-    # System State Changes
-    "shutdown"
-    "reboot"
-    "halt"
-    "init 0"
-    "systemctl poweroff"
-    
-    # Package/System Corruption
-    "yum remove.*kernel"
-    "apt-get remove.*kernel"
-    "brew uninstall.*core"
-    "dpkg --force"
-    "rpm --force"
-    
-    # Fork Bombs
-    ":(){ :|:& };:"
-    "bomb()"
-)
-
-# Check if execution is disabled
-is_execution_disabled() {
-    [[ -f "$CONFIG_FILE" ]] && grep -q "disable_execution=true" "$CONFIG_FILE" 2>/dev/null
-}
-
-# Validate command for security issues
-validate_command() {
-    local cmd="$1"
-    
-    # Check for empty command
-    if [[ -z "$cmd" ]]; then
-        echo "Error: Empty command"
-        return 1
-    fi
-    
-    # Check for command injection attempts
-    if [[ "$cmd" =~ [\;\&\|] ]] && [[ "$cmd" =~ [\$\`] ]]; then
-        echo "Warning: Command contains potentially dangerous characters"
-        return 2
-    fi
-    
-    # Check against destructive patterns
-    for pattern in "${DESTRUCTIVE_PATTERNS[@]}"; do
-        if [[ "$cmd" =~ $pattern ]]; then
-            echo "Warning: Command matches destructive pattern: $pattern"
-            return 3
-        fi
-    done
-    
-    return 0
-}
-
-# Prompt for confirmation on dangerous commands
-confirm_dangerous_command() {
-    local cmd="$1"
-    echo "This command appears to be potentially dangerous:"
-    echo "  $cmd"
-    echo -n "Are you sure you want to execute it? (yes/no): "
-    read -r response
-    if [[ "$response" != "yes" ]]; then
-        echo "Command execution cancelled."
-        return 1
-    fi
-    return 0
-}
+# No need for validation - user knows what they're doing
 
 show_help() {
     cat << EOF
@@ -123,7 +20,6 @@ COMMANDS:
     setup                Configure shell completion
     setup --check        Check if completion is configured
     setup --shell <sh>   Configure for specific shell (zsh/bash)
-    config               Configure fav settings
     help                 Show this help message
     version              Show version information
 
@@ -151,41 +47,16 @@ show_version() {
 }
 
 init_fav_file() {
-    # Check if parent directory exists and is writable
-    local parent_dir
-    parent_dir=$(dirname "$FAV_DIR")
-    if [[ ! -d "$parent_dir" ]]; then
-        echo "Error: Parent directory does not exist: $parent_dir"
-        echo "This tool requires iCloud Drive to be configured on macOS."
+    # Create the directory and file if they don't exist
+    mkdir -p "$FAV_DIR" 2>/dev/null || {
+        echo "Error: Cannot create directory: $FAV_DIR"
         exit 1
-    fi
+    }
     
-    if [[ ! -w "$parent_dir" ]]; then
-        echo "Error: Cannot write to parent directory: $parent_dir"
+    touch "$FAV_FILE" 2>/dev/null || {
+        echo "Error: Cannot create favorites file: $FAV_FILE"
         exit 1
-    fi
-    
-    # Create the directory if it doesn't exist
-    if [[ ! -d "$FAV_DIR" ]]; then
-        if ! mkdir -p "$FAV_DIR" 2>/dev/null; then
-            echo "Error: Failed to create directory: $FAV_DIR"
-            exit 1
-        fi
-    fi
-    
-    # Create the file if it doesn't exist
-    if [[ ! -f "$FAV_FILE" ]]; then
-        if ! touch "$FAV_FILE" 2>/dev/null; then
-            echo "Error: Failed to create favorites file: $FAV_FILE"
-            exit 1
-        fi
-    fi
-    
-    # Check if file is readable and writable
-    if [[ ! -r "$FAV_FILE" ]] || [[ ! -w "$FAV_FILE" ]]; then
-        echo "Error: Favorites file is not accessible: $FAV_FILE"
-        exit 1
-    fi
+    }
 }
 
 add_command() {
@@ -197,49 +68,15 @@ add_command() {
     
     local cmd="$*"
     
-    # Validate command
-    local validation_result
-    validation_result=$(validate_command "$cmd")
-    local validation_code=$?
-    
-    if [[ $validation_code -eq 1 ]]; then
-        echo "$validation_result"
+    # Check for empty command
+    if [[ -z "$cmd" ]]; then
+        echo "Error: Empty command"
         exit 1
-    elif [[ $validation_code -gt 1 ]]; then
-        echo "$validation_result"
-        echo -n "Do you still want to add this command? (yes/no): "
-        read -r response
-        if [[ "$response" != "yes" ]]; then
-            echo "Command not added."
-            exit 0
-        fi
     fi
     
     init_fav_file
     
-    # Check for duplicates (optimize for large files)
-    local file_size
-    file_size=$(wc -c < "$FAV_FILE" 2>/dev/null || echo 0)
-    if [[ $file_size -gt 1048576 ]]; then  # 1MB
-        # For large files, use faster duplicate check
-        if awk -v cmd="$cmd" '$0 == cmd {exit 0} END {exit 1}' "$FAV_FILE" 2>/dev/null; then
-            echo "Warning: This exact command already exists in favorites."
-            echo -n "Add anyway? (yes/no): "
-            read -r response
-            if [[ "$response" != "yes" ]]; then
-                echo "Command not added."
-                exit 0
-            fi
-        fi
-    elif grep -Fxq "$cmd" "$FAV_FILE" 2>/dev/null; then
-        echo "Warning: This exact command already exists in favorites."
-        echo -n "Add anyway? (yes/no): "
-        read -r response
-        if [[ "$response" != "yes" ]]; then
-            echo "Command not added."
-            exit 0
-        fi
-    fi
+    # Allow duplicates - user knows what they're doing
     
     # Try to write with error handling
     if ! echo "$cmd" >> "$FAV_FILE" 2>/dev/null; then
@@ -329,14 +166,11 @@ remove_command() {
         exit 1
     fi
     
-    # Try to remove the line
-    if ! sed -i '' "${1}d" "$FAV_FILE" 2>/dev/null; then
-        # Try GNU sed syntax as fallback
-        if ! sed -i "${1}d" "$FAV_FILE" 2>/dev/null; then
-            echo "Error: Failed to remove command from favorites"
-            exit 1
-        fi
-    fi
+    # Remove the line (macOS uses BSD sed)
+    sed -i '' "${1}d" "$FAV_FILE" || {
+        echo "Error: Failed to remove command from favorites"
+        exit 1
+    }
     
     echo "Removed from favorites: $removed_cmd"
 }
@@ -450,48 +284,6 @@ fi'
     echo "Then try: fav <TAB>"
 }
 
-configure_fav() {
-    local action="$1"
-    init_fav_file
-    
-    case "$action" in
-        disable-execution)
-            if ! echo "disable_execution=true" > "$CONFIG_FILE" 2>/dev/null; then
-                echo "Error: Failed to write configuration file"
-                exit 1
-            fi
-            echo "Direct command execution has been disabled."
-            echo "Commands can still be added and listed."
-            ;;
-        enable-execution)
-            if [[ -f "$CONFIG_FILE" ]]; then
-                if ! sed -i '' '/disable_execution=true/d' "$CONFIG_FILE" 2>/dev/null; then
-                    # Try GNU sed syntax as fallback
-                    if ! sed -i '/disable_execution=true/d' "$CONFIG_FILE" 2>/dev/null; then
-                        echo "Error: Failed to update configuration file"
-                        exit 1
-                    fi
-                fi
-            fi
-            echo "Direct command execution has been enabled."
-            ;;
-        status)
-            if is_execution_disabled; then
-                echo "Direct command execution: DISABLED"
-            else
-                echo "Direct command execution: ENABLED"
-            fi
-            ;;
-        *)
-            echo "Usage: fav config <action>"
-            echo "Actions:"
-            echo "  disable-execution  Disable direct command execution"
-            echo "  enable-execution   Enable direct command execution"
-            echo "  status            Show current configuration"
-            ;;
-    esac
-}
-
 case "$1" in
     -h|--help|help)
         show_help
@@ -509,10 +301,6 @@ case "$1" in
     remove)
         shift
         remove_command "$1"
-        ;;
-    config)
-        shift
-        configure_fav "$1"
         ;;
     setup)
         shift
@@ -541,27 +329,6 @@ case "$1" in
             # For better performance, use grep first to check existence
             if grep -Fxq "$*" "$FAV_FILE" 2>/dev/null; then
                 cmd="$*"
-                # Check if execution is disabled
-                if is_execution_disabled; then
-                    echo "Error: Direct command execution is disabled."
-                    echo "To enable, run: fav config enable-execution"
-                    exit 1
-                fi
-                
-                # Validate command before execution
-                validation_result=$(validate_command "$cmd")
-                validation_code=$?
-                
-                if [[ $validation_code -eq 1 ]]; then
-                    echo "$validation_result"
-                    exit 1
-                elif [[ $validation_code -gt 1 ]]; then
-                    echo "$validation_result"
-                    if ! confirm_dangerous_command "$cmd"; then
-                        exit 0
-                    fi
-                fi
-                
                 echo "Executing: $cmd"
                 eval "$cmd"
                 found=true

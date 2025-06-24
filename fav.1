@@ -1,4 +1,4 @@
-.TH FAV 1 "December 2024" "fav 1.0.1" "User Commands"
+.TH FAV 1 "December 2024" "fav 1.2.0" "User Commands"
 .SH NAME
 fav \- A bash favorite command tool for macOS
 .SH SYNOPSIS
@@ -8,12 +8,11 @@ fav \- A bash favorite command tool for macOS
 .B fav
 is a command-line tool that helps you save and manage your favorite shell commands.
 It stores commands in a text file and provides easy access to them with tab completion support.
-The tool includes security features to validate commands before execution and can detect potentially dangerous operations.
+Commands sync across Macs via iCloud Drive.
 .SH COMMANDS
 .TP
 .B add \fI"command"\fR
 Add a command to your favorites. The command should be quoted if it contains spaces or special characters.
-Validates the command for security and checks for duplicates before adding.
 .TP
 .B list
 List all saved favorite commands with their index numbers.
@@ -29,20 +28,6 @@ Check if tab completion is already configured.
 .TP
 .B setup --shell \fI<shell>\fR
 Configure completion for a specific shell (zsh or bash).
-.TP
-.B config \fI<action>\fR
-Manage fav configuration settings. Actions include:
-.RS
-.TP
-.I disable-execution
-Disable direct command execution for enhanced security.
-.TP
-.I enable-execution
-Enable direct command execution (default).
-.TP
-.I status
-Show current configuration status.
-.RE
 .TP
 .B help
 Display help information about fav commands and usage.
@@ -104,15 +89,11 @@ Each command is stored on a separate line.
 .PP
 Tab completion requires the bash completion script to be installed and sourced.
 .PP
-For security, the tool validates commands before execution and warns about potentially dangerous operations.
-You can disable direct command execution using the config command for enhanced security.
+The tool executes commands directly without any validation or safety checks.
 .SH FILES
 .TP
 .I ~/Library/Mobile\\ Documents/com~apple~CloudDocs/homebrew-fav/fav_favorites.txt
 The file where all favorite commands are stored.
-.TP
-.I ~/Library/Mobile\\ Documents/com~apple~CloudDocs/homebrew-fav/fav_config.txt
-Configuration file for fav settings.
 .SH AUTHOR
 Created for the fav project.
 .SH SEE ALSO

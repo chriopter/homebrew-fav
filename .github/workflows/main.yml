@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Check if release needed
         id: check
@@ -27,27 +28,33 @@ jobs:
           SCRIPT_VERSION=$(grep '^VERSION=' fav | cut -d'"' -f2)
           echo "Script version: $SCRIPT_VERSION"
           
-          # Extract version from formula URL
-          FORMULA_VERSION=$(grep -E '^\s*url' Formula/fav.rb | sed -E 's/.*tags\/v([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
-          echo "Formula version: $FORMULA_VERSION"
-          
           # Get latest tag
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           LATEST_VERSION=${LATEST_TAG#v}
           echo "Latest tag: $LATEST_VERSION"
           
-          # Check if versions match and are different from latest tag
-          if [ "$SCRIPT_VERSION" != "$FORMULA_VERSION" ]; then
-            echo "::warning::Version mismatch! Script: $SCRIPT_VERSION, Formula: $FORMULA_VERSION"
-            echo "::warning::No release will be created. Please update both versions to match."
-            echo "should_release=false" >> $GITHUB_OUTPUT
-          elif [ "$SCRIPT_VERSION" = "$LATEST_VERSION" ]; then
+          # Check if version is different from latest tag
+          if [ "$SCRIPT_VERSION" = "$LATEST_VERSION" ]; then
             echo "Version $SCRIPT_VERSION already released"
             echo "should_release=false" >> $GITHUB_OUTPUT
           else
             echo "✅ New release needed for version $SCRIPT_VERSION"
             echo "should_release=true" >> $GITHUB_OUTPUT
             echo "version=v$SCRIPT_VERSION" >> $GITHUB_OUTPUT
+            
+            # Update formula version to match script
+            sed -i "s|/archive/refs/tags/v[0-9]\+\.[0-9]\+\.[0-9]\+\.tar\.gz|/archive/refs/tags/v${SCRIPT_VERSION}.tar.gz|" Formula/fav.rb
+            
+            # Commit formula update if changed
+            if git diff --exit-code Formula/fav.rb; then
+              echo "Formula already up to date"
+            else
+              git config user.name github-actions
+              git config user.email github-actions@github.com
+              git add Formula/fav.rb
+              git commit -m "Update formula version to v${SCRIPT_VERSION}"
+              git push
+            fi
           fi
 
   test:

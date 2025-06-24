@@ -51,23 +51,21 @@ load test_helper
     [[ "$output" =~ "Error: No command provided" ]]
 }
 
-@test "add duplicate command prompts user" {
+@test "add duplicate command allowed" {
     setup_test_env
     add_test_command "echo test"
-    run bash -c "echo 'no' | '$FAV_SCRIPT' add 'echo test'"
+    run "$FAV_SCRIPT" add "echo test"
     [ "$status" -eq 0 ]
-    [[ "$output" =~ "Warning: This exact command already exists" ]]
-    [[ "$output" =~ "Command not added" ]]
-    [ "$(count_favorites)" -eq 1 ]
+    [[ "$output" =~ "Added to favorites: echo test" ]]
+    [ "$(count_favorites)" -eq 2 ]
 }
 
-@test "add dangerous command shows warning" {
+@test "add dangerous command works fine" {
     setup_test_env
-    run bash -c "echo 'no' | '$FAV_SCRIPT' add 'rm -rf /'"
+    run "$FAV_SCRIPT" add "rm -rf /"
     [ "$status" -eq 0 ]
-    [[ "$output" =~ "Warning: Command matches destructive pattern" ]]
-    [[ "$output" =~ "Command not added" ]]
-    [ "$(count_favorites)" -eq 0 ]
+    [[ "$output" =~ "Added to favorites: rm -rf /" ]]
+    [ "$(count_favorites)" -eq 1 ]
 }
 
 @test "list shows numbered favorites" {
@@ -122,37 +120,6 @@ load test_helper
     [[ "$output" =~ "No favorite commands to remove" ]]
 }
 
-@test "config disable-execution works" {
-    setup_test_env
-    run "$FAV_SCRIPT" config disable-execution
-    [ "$status" -eq 0 ]
-    [[ "$output" =~ "Direct command execution has been disabled" ]]
-    [ -f "$TEST_CONFIG_FILE" ]
-    grep -q "disable_execution=true" "$TEST_CONFIG_FILE"
-}
-
-@test "config enable-execution works" {
-    setup_test_env
-    echo "disable_execution=true" > "$TEST_CONFIG_FILE"
-    
-    run "$FAV_SCRIPT" config enable-execution
-    [ "$status" -eq 0 ]
-    [[ "$output" =~ "Direct command execution has been enabled" ]]
-    ! grep -q "disable_execution=true" "$TEST_CONFIG_FILE"
-}
-
-@test "config status shows current state" {
-    setup_test_env
-    run "$FAV_SCRIPT" config status
-    [ "$status" -eq 0 ]
-    [[ "$output" =~ "Direct command execution: ENABLED" ]]
-    
-    "$FAV_SCRIPT" config disable-execution
-    run "$FAV_SCRIPT" config status
-    [ "$status" -eq 0 ]
-    [[ "$output" =~ "Direct command execution: DISABLED" ]]
-}
-
 @test "execute command when enabled" {
     setup_test_env
     add_test_command "echo execution test"
@@ -160,16 +127,6 @@ load test_helper
     run "$FAV_SCRIPT" "echo execution test"
     [ "$status" -eq 0 ]
     [[ "$output" =~ "Executing: echo execution test" ]]
-}
-
-@test "execute command when disabled fails" {
-    setup_test_env
-    add_test_command "echo test"
-    "$FAV_SCRIPT" config disable-execution
-    
-    run "$FAV_SCRIPT" "echo test"
-    [ "$status" -eq 1 ]
-    [[ "$output" =~ "Error: Direct command execution is disabled" ]]
 }
 
 @test "execute non-existent command fails" {

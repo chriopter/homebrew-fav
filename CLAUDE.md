@@ -12,8 +12,8 @@ The project consists of:
 - `fav`: Main executable bash script containing all functionality
 - `fav-completion.bash` and `fav-completion.zsh`: Shell-specific completion scripts
 - `Formula/fav.rb`: Homebrew formula for distribution
-- `.github/workflows/release.yml`: Version-driven automated release workflow
-- `.github/workflows/test.yml`: Automated testing workflow
+- `.github/workflows/main.yml`: Combined CI/CD workflow (testing + releases)
+- `.github/workflows/test-reusable.yml`: Reusable test workflow
 - `test/`: Test suite using BATS (Bash Automated Testing System)
 - `fav.1`: Man page documentation
 
@@ -35,16 +35,12 @@ shellcheck fav-completion.bash
 ### Release Process
 Releases are automated via GitHub Actions when you update versions:
 1. Update VERSION in the `fav` script (e.g., "1.2.0")
-2. Update version in Formula/fav.rb URL to match (e.g., "v1.2.0.tar.gz")
-3. Commit both changes together
-4. Push to main branch
-5. GitHub Actions automatically:
-   - Verifies both versions match
+2. Commit and push to main branch
+3. GitHub Actions automatically:
+   - Updates Formula version to match script
    - Runs full test suite (must pass)
    - Creates GitHub release and tag
    - Updates the SHA256 in the Homebrew formula
-
-**Why this approach**: By updating both versions manually, you have explicit control over when releases happen. The workflow only needs to update the SHA256 after creating the release.
 
 ### Development Workflow
 1. Edit the `fav` script directly
@@ -63,43 +59,33 @@ The script includes robust error handling for:
 - Corrupt favorites file
 - Empty lines in favorites
 
-All destructive operations create backups that can be restored on failure.
 
 ## Key Implementation Details
 
-1. **Storage Locations**: 
+1. **Storage Location**: 
    - Commands: `~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/fav_favorites.txt`
-   - Config: `~/Library/Mobile Documents/com~apple~CloudDocs/homebrew-fav/fav_config.txt`
 
 2. **Command Structure**:
-   - `add`: Appends command to favorites file (with validation and duplicate detection)
+   - `add`: Appends command to favorites file
    - `list` (default): Shows numbered list of favorites
-   - `remove`: Removes by line number (with backup)
+   - `remove`: Removes by line number
    - `setup`: Configures shell completion
-   - `config`: Manages security settings
-   - Direct execution: Running `fav <saved_command>` executes it (can be disabled)
+   - Direct execution: Running `fav <saved_command>` executes it
 
-3. **Security Features**:
-   - Command validation prevents injection attacks
-   - Detects dangerous patterns (rm -rf, dd, mkfs, curl|sh, etc.)
-   - Confirmation prompts for risky commands
-   - Option to disable execution entirely
-   - Backups created before destructive operations
-
-4. **Completion Logic**: 
+3. **Completion Logic**: 
    - Case-insensitive matching in both bash and zsh
    - Cycles through matches inline without dropdown
    - Handles partial command matching
    - Context-aware completions for subcommands
 
-5. **Testing**:
-   - Comprehensive test suite using BATS
-   - Tests cover all commands, error cases, and security features
+4. **Testing**:
+   - Test suite using BATS
+   - Tests cover all commands and error cases
    - Automated testing on every push
    - Shellcheck for code quality
 
-6. **Version Management**: 
-   - Versions must be updated in two places: script VERSION and formula URL
-   - Release triggered when both match AND differ from latest tag
-   - This gives explicit control over when releases happen
+5. **Version Management**: 
+   - Version is defined only in the main `fav` script
+   - CI automatically updates the formula version to match
+   - Release triggered when version differs from latest tag
    - Formula SHA256 is automatically calculated after release

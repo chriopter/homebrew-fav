@@ -5,12 +5,9 @@
 # Set up test environment
 export TEST_FAV_DIR="$BATS_TEST_TMPDIR/fav_test"
 export TEST_FAV_FILE="$TEST_FAV_DIR/fav_favorites.txt"
-export TEST_CONFIG_FILE="$TEST_FAV_DIR/fav_config.txt"
-
 # Override the default directories in the fav script
 export FAV_DIR="$TEST_FAV_DIR"
 export FAV_FILE="$TEST_FAV_FILE"
-export CONFIG_FILE="$TEST_CONFIG_FILE"
 
 # Path to the fav script
 FAV_SCRIPT="$BATS_TEST_DIRNAME/../fav"
@@ -19,7 +16,7 @@ FAV_SCRIPT="$BATS_TEST_DIRNAME/../fav"
 setup_test_env() {
     mkdir -p "$TEST_FAV_DIR"
     # Clear any existing files
-    rm -f "$TEST_FAV_FILE" "$TEST_CONFIG_FILE"
+    rm -f "$TEST_FAV_FILE"
 }
 
 # Clean up test directory
