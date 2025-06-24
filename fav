@@ -329,26 +329,14 @@ remove_command() {
         exit 1
     fi
     
-    # Create backup before modification
-    local backup_file
-    backup_file="${FAV_FILE}.backup.$(date +%s)"
-    if ! cp "$FAV_FILE" "$backup_file" 2>/dev/null; then
-        echo "Warning: Could not create backup file"
-    fi
-    
     # Try to remove the line
     if ! sed -i '' "${1}d" "$FAV_FILE" 2>/dev/null; then
         # Try GNU sed syntax as fallback
         if ! sed -i "${1}d" "$FAV_FILE" 2>/dev/null; then
             echo "Error: Failed to remove command from favorites"
-            # Restore backup if it exists
-            [[ -f "$backup_file" ]] && mv "$backup_file" "$FAV_FILE"
             exit 1
         fi
     fi
-    
-    # Clean up backup on success
-    [[ -f "$backup_file" ]] && rm -f "$backup_file"
     
     echo "Removed from favorites: $removed_cmd"
 }
@@ -445,11 +433,6 @@ fi'
         touch "$rc_file"
     fi
     
-    # Backup RC file
-    local backup_file
-    backup_file="${rc_file}.backup.$(date +%Y%m%d_%H%M%S)"
-    cp "$rc_file" "$backup_file"
-    echo "Created backup: $backup_file"
     
     # Add completion config
     {

@@ -44,7 +44,7 @@ That's it! Your commands sync across all your Macs via iCloud automatically.
 ### 🛡️ Security & Quality
 - Warns from saving and executing dangerous patterns before saving or executing (like `; rm -rf $HOME`)
 - CI Tested code with 20+ automated tests
-- Robust error handling with automatic backups
+- Robust error handling and validation
 
 ### 📁 How It Works
 Your commands are stored in a simple text file in iCloud Drive. The intelligent tab completion reads this file and matches your input.
