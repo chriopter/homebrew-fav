@@ -61,13 +61,7 @@ fav doc<TAB>
 
 ### Security
 - Command validation prevents injection attacks
-- Detects 30+ dangerous command patterns including:
-  - File destruction (`rm -rf`, `shred`, `find -delete`)
-  - Disk operations (`dd`, `mkfs`, `fdisk`, `wipefs`)
-  - System modification (`> /etc/`, `chmod 777`, `chown -R`)
-  - Remote execution (`curl|sh`, `wget|bash`, `nc -e`)
-  - System state (`shutdown`, `reboot`, `init 0`)
-  - Package corruption (`remove kernel`, `--force` installs)
+- Detects 30+ dangerous command patterns including rm, dd, mkfs etc.
 - Confirmation prompts for risky operations  
 - Option to disable command execution entirely
 - All commands are validated before being saved
