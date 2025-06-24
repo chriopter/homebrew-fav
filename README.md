@@ -33,7 +33,7 @@ fav setup  # Enable tab completion
 
 ```bash
 # Save a command
-fav add "git log --graph --pretty=format:'%C(yellow)%h%C(reset) %s %C(green)(%cr)%C(reset)'"
+fav add "git log --graph --pretty=format:'%C(yellow)%h%C(reset) %s %C(green)'"
 
 # List your commands
 fav
