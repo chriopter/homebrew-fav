@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2207  # This is standard bash completion pattern
 
 _fav_completions() {
+    # shellcheck disable=SC2034
     local cur prev opts
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"

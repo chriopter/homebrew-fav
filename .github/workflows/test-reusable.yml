@@ -1,0 +1,29 @@
+name: Reusable Test Workflow
+
+on:
+  workflow_call:
+
+jobs:
+  test:
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install test dependencies
+      run: |
+        brew tap bats-core/bats-core
+        brew install bats-core shellcheck
+    
+    - name: Run shellcheck
+      run: |
+        # Only fail on errors and warnings, not info
+        shellcheck -S warning fav
+        shellcheck -S warning fav-completion.bash
+    
+    - name: Run tests
+      run: |
+        chmod +x ./fav
+        bats test/*.bats
