@@ -3,9 +3,13 @@
 load test_helper
 
 @test "version command shows correct version" {
+    # Extract version from script (single source of truth)
+    local expected_version
+    expected_version=$(grep '^VERSION=' "$FAV_SCRIPT" | cut -d'"' -f2)
+    
     run "$FAV_SCRIPT" --version
     [ "$status" -eq 0 ]
-    [[ "$output" == "fav version 1.0.1" ]]
+    [[ "$output" == "fav version $expected_version" ]]
 }
 
 @test "help command shows usage information" {
