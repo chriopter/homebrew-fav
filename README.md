@@ -2,7 +2,7 @@
 
 Never type that long command again.
 
-Save commands with 'fav add', access with 'fav comm....‘ and press Tab. Syncs between Macs. 
+Save commands with 'fav add yourcommand', access with 'fav yourc....‘ and press Tab. Syncs between Macs. 
 
 <img src="https://github.com/user-attachments/assets/2bd04cfe-9dff-4080-a8ca-2bfd0a3f5893" width="300">
 
