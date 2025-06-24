@@ -10,8 +10,33 @@ permissions:
   contents: write  # Needed for release creation
 
 jobs:
+  test:
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install test dependencies
+      run: |
+        brew tap bats-core/bats-core
+        brew install bats-core shellcheck
+    
+    - name: Run shellcheck
+      run: |
+        # Only fail on errors and warnings, not info
+        shellcheck -S warning fav
+        shellcheck -S warning fav-completion.bash
+    
+    - name: Run tests
+      run: |
+        chmod +x ./fav
+        bats test/*.bats
+
   check-release:
     runs-on: ubuntu-latest
+    needs: test  # Only check for release after tests pass
     outputs:
       should_release: ${{ steps.check.outputs.should_release }}
       version: ${{ steps.check.outputs.version }}
@@ -41,28 +66,10 @@ jobs:
             echo "✅ New release needed for version $SCRIPT_VERSION"
             echo "should_release=true" >> $GITHUB_OUTPUT
             echo "version=v$SCRIPT_VERSION" >> $GITHUB_OUTPUT
-            
-            # Update formula version to match script
-            sed -i "s|/archive/refs/tags/v[0-9]\+\.[0-9]\+\.[0-9]\+\.tar\.gz|/archive/refs/tags/v${SCRIPT_VERSION}.tar.gz|" Formula/fav.rb
-            
-            # Commit formula update if changed
-            if git diff --exit-code Formula/fav.rb; then
-              echo "Formula already up to date"
-            else
-              git config user.name github-actions
-              git config user.email github-actions@github.com
-              git add Formula/fav.rb
-              git commit -m "Update formula version to v${SCRIPT_VERSION}"
-              git push
-            fi
           fi
 
-  test:
-    needs: check-release
-    uses: ./.github/workflows/test-reusable.yml
-
   release:
-    needs: [check-release, test]
+    needs: [check-release]
     if: needs.check-release.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     steps:
@@ -105,25 +112,24 @@ jobs:
           draft: false
           prerelease: false
       
-      - name: Update Formula SHA256
+      - name: Update Formula with version and SHA256
         run: |
           VERSION=${{ needs.check-release.outputs.version }}
+          VERSION_NUM=${VERSION#v}
           TARBALL_URL="https://github.com/chriopter/homebrew-fav/archive/refs/tags/${VERSION}.tar.gz"
           
-          # Pull latest changes to avoid push conflicts
-          git pull origin main
-          
           # Wait for GitHub to process the release
-          sleep 5
+          sleep 10
           
           # Download and calculate SHA256
           curl -sL "$TARBALL_URL" -o fav.tar.gz
           SHA256=$(shasum -a 256 fav.tar.gz | cut -d' ' -f1)
           
-          # Update only the SHA256 in formula
+          # Update both URL and SHA256 in formula
+          sed -i "s|/archive/refs/tags/v[0-9]\+\.[0-9]\+\.[0-9]\+\.tar\.gz|/archive/refs/tags/v${VERSION_NUM}.tar.gz|" Formula/fav.rb
           sed -i "s|sha256 \".*\"|sha256 \"$SHA256\"|" Formula/fav.rb
           
           # Commit and push
           git add Formula/fav.rb
-          git commit -m "Update formula SHA256 for ${VERSION}"
+          git commit -m "Update formula for ${VERSION}"
           git push
