@@ -110,6 +110,9 @@ jobs:
           VERSION=${{ needs.check-release.outputs.version }}
           TARBALL_URL="https://github.com/chriopter/homebrew-fav/archive/refs/tags/${VERSION}.tar.gz"
           
+          # Pull latest changes to avoid push conflicts
+          git pull origin main
+          
           # Wait for GitHub to process the release
           sleep 5
           
