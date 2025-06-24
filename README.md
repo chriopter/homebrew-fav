@@ -49,21 +49,19 @@ fav remove 1
 
 ## Features
 
-### 🛡️ Security First
-- **Smart validation** checks for command injection (like `; rm -rf $HOME`) and dangerous patterns
+### 🚀 Core Features
+- **Tab completion** - Type a few letters, press TAB, get your full command
+- **iCloud sync** - Your commands are available on all your Macs instantly
+- **Case-insensitive matching** - Type `DOC` or `doc`, both find "docker"
+- **Direct execution** - Run commands right from `fav` or just view them
+- **Works with bash and zsh** - No need to change your shell
+
+### 🛡️ Security & Quality
+- **Validation scans for dangerous patterns** before saving or executing (like `; rm -rf $HOME`)
 - Detects 30+ risky patterns: `rm -rf`, `dd`, `curl|sh`, `chmod 777`, and more
 - Shows warnings but lets you proceed if you know what you're doing
-- Can disable direct execution entirely with `fav config disable-execution`
-
-### 🧪 Battle-Tested
 - Comprehensive test suite with 20+ automated tests
-- Shellcheck validated for code quality
 - Robust error handling with automatic backups
-
-### 🚀 Performance
-- Optimized for large command lists (100+ commands)
-- Case-insensitive tab completion
-- Works seamlessly with both bash and zsh
 
 ## Commands
 
