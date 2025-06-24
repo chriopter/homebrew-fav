@@ -61,7 +61,7 @@ Your commands are stored in a simple text file in iCloud Drive. The intelligent 
 - `fav` - List all favorites with numbers  
 - `fav remove <n>` - Remove by number
 - `fav <partial><TAB>` - Tab complete and execute
-- `fav config` - Security settings (disable/enable execution)
+- `fav config` - Security settings (disable/enable execution) - Synced setting
 - `fav setup` - Configure shell completion
 - `fav --help` - Show all options
 
