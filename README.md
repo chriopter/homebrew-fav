@@ -14,7 +14,7 @@ Remember that Docker command with all the formatting flags? Or that Git log with
 
 ```bash
 # Save once
-fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
+fav add "docker ps -a --format 'table {{.Names}}\t{{.Status}}'"
 
 # Use forever - just type and TAB
 fav doc<TAB>
@@ -50,9 +50,9 @@ fav remove 1
 ## Features
 
 ### 🛡️ Security First
-- Validates commands before saving or executing
-- Detects 30+ dangerous patterns (rm -rf, dd, curl|sh, etc.)
-- Optional confirmation prompts for risky commands
+- **Smart validation** checks for command injection (like `; rm -rf $HOME`) and dangerous patterns
+- Detects 30+ risky patterns: `rm -rf`, `dd`, `curl|sh`, `chmod 777`, and more
+- Shows warnings but lets you proceed if you know what you're doing
 - Can disable direct execution entirely with `fav config disable-execution`
 
 ### 🧪 Battle-Tested
