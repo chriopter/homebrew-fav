@@ -1,12 +1,9 @@
 # fav
 
-Never type that long command again. Save it once, press TAB, and go.
+Never type that long command again. Save that complicated docker command once, and the next time just press TAB, and go.
 
 <img src="https://github.com/user-attachments/assets/2bd04cfe-9dff-4080-a8ca-2bfd0a3f5893" width="300">
 
-## The Problem
-
-Remember that Docker command with all the formatting flags? Or that Git log with the perfect options? You google it, copy-paste it, then forget it again next week.
 
 ## Quick Start
 
