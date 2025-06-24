@@ -1,7 +1,8 @@
 # fav
 
 Never type that long command again.
-Save that complicated docker command once, and the next time just press TAB, and go.
+
+Save commands with 'fav add', access with 'fav comm....‘ and press Tab. 
 
 <img src="https://github.com/user-attachments/assets/2bd04cfe-9dff-4080-a8ca-2bfd0a3f5893" width="300">
 
