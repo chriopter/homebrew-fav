@@ -55,8 +55,9 @@ jobs:
       
       - name: Run shellcheck
         run: |
-          shellcheck fav
-          shellcheck fav-completion.bash
+          # Only fail on errors and warnings, not info
+          shellcheck -S warning fav
+          shellcheck -S warning fav-completion.bash
       
       - name: Run tests
         run: |

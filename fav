@@ -391,6 +391,7 @@ setup_completion() {
     
     if [[ "$shell_type" == "zsh" ]]; then
         rc_file="$HOME/.zshrc"
+        # shellcheck disable=SC2016
         completion_config='# fav completion setup
 if type brew &>/dev/null; then
   FPATH="$(brew --prefix)/share/zsh/site-functions:${FPATH}"
@@ -409,6 +410,7 @@ zstyle ":completion:*" matcher-list "m:{a-zA-Z}={A-Za-z}"'
         if [[ ! -f "$rc_file" ]]; then
             rc_file="$HOME/.bashrc"
         fi
+        # shellcheck disable=SC2016
         completion_config='# fav completion setup
 if type brew &>/dev/null; then
   HOMEBREW_PREFIX="$(brew --prefix)"

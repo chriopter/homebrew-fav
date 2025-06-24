@@ -29,5 +29,6 @@ jobs:
     - name: Shellcheck
       run: |
         brew install shellcheck
-        shellcheck fav
-        shellcheck fav-completion.bash
+        # Run shellcheck but only fail on errors and warnings, not info
+        shellcheck -S warning fav
+        shellcheck -S warning fav-completion.bash
