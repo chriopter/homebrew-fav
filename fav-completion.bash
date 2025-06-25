@@ -45,6 +45,11 @@ _fav_completions() {
                     
                     # Combine base commands and favorites
                     COMPREPLY+=("${base_completions[@]}")
+                    
+                    # Sort COMPREPLY for consistent cycling order
+                    if [[ ${#COMPREPLY[@]} -gt 0 ]]; then
+                        readarray -t COMPREPLY < <(printf '%s\n' "${COMPREPLY[@]}" | sort -u)
+                    fi
                 else
                     # No favorites yet, just show commands
                     COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
@@ -83,4 +88,6 @@ _fav_completions() {
 }
 
 # Register the completion function for the fav command
-complete -F _fav_completions fav
+# -o nosort: preserve our custom sort order for consistent cycling
+# -o filenames: treat completions as filenames (helps with spaces)
+complete -o nosort -o filenames -F _fav_completions fav
