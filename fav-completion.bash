@@ -51,7 +51,12 @@ _fav_completions() {
                     
                     # Sort COMPREPLY for consistent cycling order
                     if [[ ${#COMPREPLY[@]} -gt 0 ]]; then
-                        readarray -t COMPREPLY < <(printf '%s\n' "${COMPREPLY[@]}" | sort -u)
+                        # Use a method that works with older bash versions
+                        local sorted_replies=()
+                        while IFS= read -r line; do
+                            sorted_replies+=("$line")
+                        done < <(printf '%s\n' "${COMPREPLY[@]}" | sort -u)
+                        COMPREPLY=("${sorted_replies[@]}")
                     fi
                 else
                     # No favorites yet, just show commands

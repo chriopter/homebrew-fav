@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="1.2.8"
+VERSION="1.2.9"
 ICLOUD_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs"
 FAV_DIR="${FAV_DIR:-$ICLOUD_DIR/homebrew-fav}"
 FAV_FILE="${FAV_FILE:-$FAV_DIR/fav_favorites.txt}"
@@ -221,12 +221,15 @@ if type brew &>/dev/null; then
   compinit
 fi
 
-# Enable pure inline cycling (no list display) and shift-tab for reverse cycling
-zstyle ":completion:*" menu no
+# Enable menu selection for cycling through matches
+zstyle ":completion:*" menu select
 bindkey "^[[Z" reverse-menu-complete
 
 # Enable case-insensitive completion matching
-zstyle ":completion:*" matcher-list "m:{a-zA-Z}={A-Za-z}"'
+zstyle ":completion:*" matcher-list "m:{a-zA-Z}={A-Za-z}"
+
+# Do not insert common prefix automatically
+zstyle ":completion:*" insert-unambiguous false'
     elif [[ "$shell_type" == "bash" ]]; then
         rc_file="$HOME/.bash_profile"
         if [[ ! -f "$rc_file" ]]; then
