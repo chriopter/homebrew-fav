@@ -34,18 +34,17 @@ _fav() {
             fi
             
             if [[ ${#matched_favorites} -gt 0 ]]; then
-                # Use _values which handles menu selection properly
-                local -a value_specs
-                local fav
-                for fav in "${matched_favorites[@]}"; do
-                    # Escape special characters for _values
-                    local escaped="${fav//:/\\:}"
-                    escaped="${escaped//\[/\\[}"
-                    escaped="${escaped//\]/\\]}"
-                    value_specs+=("${escaped//=/\\=}:${fav}")
-                done
+                # Check if we have multiple matches with common prefix
+                if [[ ${#matched_favorites} -gt 1 ]]; then
+                    # Force menu completion mode if available
+                    [[ -n "$compstate" ]] && compstate[insert]=menu
+                fi
                 
-                _values -s '' 'favorite commands' "${value_specs[@]}"
+                # Add completions with proper flags
+                # -Q: don't quote
+                # -o nosort: maintain our order
+                # -l: list matches
+                compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -o nosort -l -- "${matched_favorites[@]}"
             fi
         else
             # If no favorites yet, show a helpful message
