@@ -31,15 +31,15 @@ _fav() {
                 
                 if [[ ${#matched_favorites} -gt 0 ]]; then
                     # Add filtered matches with special handling for menu selection
-                    # Use -X to add explanations that force menu mode
-                    _describe -t favorites 'favorite commands' matched_favorites
+                    # -Q prevents quoting (no backslashes)
+                    _describe -t favorites -Q 'favorite commands' matched_favorites
                 else
                     # No matches found, show all favorites
-                    _describe -t favorites 'favorite commands' favorites
+                    _describe -t favorites -Q 'favorite commands' favorites
                 fi
             else
                 # No input yet, show all favorites
-                _describe -t favorites 'favorite commands' favorites
+                _describe -t favorites -Q 'favorite commands' favorites
             fi
         else
             # If no favorites yet, show a helpful message
