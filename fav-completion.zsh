@@ -69,7 +69,7 @@ _fav() {
     esac
 }
 
-# Set completion style to pure inline cycling (no list) for fav commands
-zstyle ':completion:*:*:fav:*' menu no
+# Enable menu selection for cycling through matches
+zstyle ':completion:*:*:fav:*' menu select
 
 _fav "$@"
