@@ -20,19 +20,25 @@ _fav() {
         
         # Only show favorite commands for tab completion
         if [[ ${#favorites} -gt 0 ]]; then
-            # Filter favorites based on what's typed (case-insensitive)
-            local -a matched_favorites
-            for fav in "${favorites[@]}"; do
-                if [[ "${fav:l}" == "${cur_word:l}"* ]]; then
-                    matched_favorites+=("$fav")
+            if [[ -n "$cur_word" ]]; then
+                # Filter favorites based on what's typed (case-insensitive)
+                local -a matched_favorites
+                for fav in "${favorites[@]}"; do
+                    if [[ "${fav:l}" == "${cur_word:l}"* ]]; then
+                        matched_favorites+=("$fav")
+                    fi
+                done
+                
+                if [[ ${#matched_favorites} -gt 0 ]]; then
+                    # Add filtered matches
+                    compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a matched_favorites
+                else
+                    # No matches found, show all favorites
+                    compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a favorites
                 fi
-            done
-            
-            if [[ ${#matched_favorites} -gt 0 ]]; then
-                # Add case-insensitive matching
-                # -Q: don't quote the words
-                # -M: matcher for case-insensitive completion
-                compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a matched_favorites
+            else
+                # No input yet, show all favorites
+                compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a favorites
             fi
         else
             # If no favorites yet, show a helpful message
@@ -82,6 +88,11 @@ _fav() {
 }
 
 # Enable menu selection for cycling through matches
-zstyle ':completion:*:*:fav:*' menu select
+# Force menu select always, even with only one match
+zstyle ':completion:*:*:fav:*' menu select=0
+
+# For fav specifically, always use menu select and don't insert common prefix
+zstyle ':completion:*:*:fav:*' insert-unambiguous false
+zstyle ':completion:*:*:fav:*' list-ambiguous false
 
 _fav "$@"
