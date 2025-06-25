@@ -30,15 +30,16 @@ _fav() {
                 done
                 
                 if [[ ${#matched_favorites} -gt 0 ]]; then
-                    # Add filtered matches
-                    compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a matched_favorites
+                    # Add filtered matches with special handling for menu selection
+                    # Use -X to add explanations that force menu mode
+                    _describe -t favorites 'favorite commands' matched_favorites
                 else
                     # No matches found, show all favorites
-                    compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a favorites
+                    _describe -t favorites 'favorite commands' favorites
                 fi
             else
                 # No input yet, show all favorites
-                compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a favorites
+                _describe -t favorites 'favorite commands' favorites
             fi
         else
             # If no favorites yet, show a helpful message
@@ -88,11 +89,13 @@ _fav() {
 }
 
 # Enable menu selection for cycling through matches
-# Force menu select always, even with only one match
-zstyle ':completion:*:*:fav:*' menu select=0
+# Force menu select always, starting from first match
+zstyle ':completion:*:*:fav:*' menu yes select=1
 
-# For fav specifically, always use menu select and don't insert common prefix
+# For fav specifically, prevent common prefix insertion
 zstyle ':completion:*:*:fav:*' insert-unambiguous false
 zstyle ':completion:*:*:fav:*' list-ambiguous false
+zstyle ':completion:*:*:fav:*' special-dirs false
+zstyle ':completion:*:*:fav:*' accept-exact false
 
 _fav "$@"
