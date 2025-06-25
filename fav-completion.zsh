@@ -30,9 +30,14 @@ _fav() {
                 done
                 
                 if [[ ${#matched_favorites} -gt 0 ]]; then
-                    # Use compset to prevent common prefix completion
-                    compset -P '*'
-                    compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -U -a matched_favorites
+                    # Set completion options to prevent prefix completion
+                    _comp_options+=(NO_listambiguous)
+                    
+                    # Add matches with display strings to force menu
+                    local match
+                    for match in "${matched_favorites[@]}"; do
+                        compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -d match -- "$match"
+                    done
                 else
                     # No matches found, show all favorites
                     compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a favorites
