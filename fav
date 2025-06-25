@@ -239,7 +239,12 @@ if type brew &>/dev/null; then
   if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]; then
     source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
   fi
-fi'
+fi
+
+# Enable menu-style tab completion (cycle through matches)
+bind "TAB:menu-complete"
+bind "set show-all-if-ambiguous on"
+bind "set menu-complete-display-prefix on"'
     else
         echo "Error: Unsupported shell type: $shell_type"
         exit 1

@@ -8,6 +8,9 @@ _fav_completions() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     
+    # For menu-complete style cycling
+    local IFS=$'\n'
+    
     # Base commands and options
     local commands="add list remove setup help version"
     local options="-h --help -v --version"
@@ -88,6 +91,7 @@ _fav_completions() {
 }
 
 # Register the completion function for the fav command
-# -o nosort: preserve our custom sort order for consistent cycling
-# -o filenames: treat completions as filenames (helps with spaces)
-complete -o nosort -o filenames -F _fav_completions fav
+# To enable cycling through completions, add this to your ~/.bashrc or ~/.bash_profile:
+# bind 'TAB:menu-complete'
+# bind 'set show-all-if-ambiguous on'
+complete -F _fav_completions fav
