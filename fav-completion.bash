@@ -8,6 +8,9 @@ _fav_completions() {
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     
+    # For menu-complete style cycling
+    local IFS=$'\n'
+    
     # Base commands and options
     local commands="add list remove setup help version"
     local options="-h --help -v --version"
@@ -45,6 +48,16 @@ _fav_completions() {
                     
                     # Combine base commands and favorites
                     COMPREPLY+=("${base_completions[@]}")
+                    
+                    # Sort COMPREPLY for consistent cycling order
+                    if [[ ${#COMPREPLY[@]} -gt 0 ]]; then
+                        # Use a method that works with older bash versions
+                        local sorted_replies=()
+                        while IFS= read -r line; do
+                            sorted_replies+=("$line")
+                        done < <(printf '%s\n' "${COMPREPLY[@]}" | sort -u)
+                        COMPREPLY=("${sorted_replies[@]}")
+                    fi
                 else
                     # No favorites yet, just show commands
                     COMPREPLY=( $(compgen -W "${commands}" -- ${cur}) )
@@ -83,4 +96,7 @@ _fav_completions() {
 }
 
 # Register the completion function for the fav command
+# To enable cycling through completions, add this to your ~/.bashrc or ~/.bash_profile:
+# bind 'TAB:menu-complete'
+# bind 'set show-all-if-ambiguous on'
 complete -F _fav_completions fav

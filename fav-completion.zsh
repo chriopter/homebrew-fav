@@ -20,8 +20,32 @@ _fav() {
         
         # Only show favorite commands for tab completion
         if [[ ${#favorites} -gt 0 ]]; then
-            # Add case-insensitive matching
-            compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a favorites
+            local -a matched_favorites
+            
+            # Filter based on input
+            if [[ -n "$cur_word" ]]; then
+                for fav in "${favorites[@]}"; do
+                    if [[ "${fav:l}" == "${cur_word:l}"* ]]; then
+                        matched_favorites+=("$fav")
+                    fi
+                done
+            else
+                matched_favorites=("${favorites[@]}")
+            fi
+            
+            if [[ ${#matched_favorites} -gt 0 ]]; then
+                # Check if we have multiple matches with common prefix
+                if [[ ${#matched_favorites} -gt 1 ]]; then
+                    # Force menu completion mode if available
+                    [[ -n "$compstate" ]] && compstate[insert]=menu
+                fi
+                
+                # Add completions with proper flags
+                # -Q: don't quote
+                # -o nosort: maintain our order
+                # -l: list matches
+                compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -o nosort -l -- "${matched_favorites[@]}"
+            fi
         else
             # If no favorites yet, show a helpful message
             _message "No favorite commands saved yet. Use 'fav add <command>' to add one."
@@ -69,7 +93,8 @@ _fav() {
     esac
 }
 
-# Set completion style to pure inline cycling (no list) for fav commands
-zstyle ':completion:*:*:fav:*' menu no
+# Specific styles for fav to ensure menu selection works
+zstyle ':completion:*:*:fav:*:*' menu yes select
+zstyle ':completion:*:*:fav:*:*' force-list always
 
 _fav "$@"

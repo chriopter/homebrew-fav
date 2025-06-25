@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="1.2.6"
+VERSION="1.2.20"
 ICLOUD_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs"
 FAV_DIR="${FAV_DIR:-$ICLOUD_DIR/homebrew-fav}"
 FAV_FILE="${FAV_FILE:-$FAV_DIR/fav_favorites.txt}"
@@ -221,12 +221,21 @@ if type brew &>/dev/null; then
   compinit
 fi
 
-# Enable pure inline cycling (no list display) and shift-tab for reverse cycling
-zstyle ":completion:*" menu no
+# Enable menu selection for cycling through matches
+zstyle ":completion:*" menu select
 bindkey "^[[Z" reverse-menu-complete
 
 # Enable case-insensitive completion matching
-zstyle ":completion:*" matcher-list "m:{a-zA-Z}={A-Za-z}"'
+zstyle ":completion:*" matcher-list "m:{a-zA-Z}={A-Za-z}"
+
+# Do not insert common prefix automatically
+zstyle ":completion:*" insert-unambiguous false
+
+# Show all matches immediately instead of completing to common prefix
+zstyle ":completion:*" list-ambiguous false
+
+# Automatically show completion menu
+zstyle ":completion:*" auto-list true'
     elif [[ "$shell_type" == "bash" ]]; then
         rc_file="$HOME/.bash_profile"
         if [[ ! -f "$rc_file" ]]; then
@@ -239,7 +248,12 @@ if type brew &>/dev/null; then
   if [[ -r "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh" ]]; then
     source "${HOMEBREW_PREFIX}/etc/profile.d/bash_completion.sh"
   fi
-fi'
+fi
+
+# Enable menu-style tab completion (cycle through matches)
+bind "TAB:menu-complete"
+bind "set show-all-if-ambiguous on"
+bind "set menu-complete-display-prefix on"'
     else
         echo "Error: Unsupported shell type: $shell_type"
         exit 1
