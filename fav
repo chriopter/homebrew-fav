@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-VERSION="1.2.18"
+VERSION="1.2.19"
 ICLOUD_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs"
 FAV_DIR="${FAV_DIR:-$ICLOUD_DIR/homebrew-fav}"
 FAV_FILE="${FAV_FILE:-$FAV_DIR/fav_favorites.txt}"

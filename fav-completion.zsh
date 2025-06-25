@@ -20,31 +20,32 @@ _fav() {
         
         # Only show favorite commands for tab completion
         if [[ ${#favorites} -gt 0 ]]; then
+            local -a matched_favorites
+            
+            # Filter based on input
             if [[ -n "$cur_word" ]]; then
-                # Filter favorites based on what's typed (case-insensitive)
-                local -a matched_favorites
                 for fav in "${favorites[@]}"; do
                     if [[ "${fav:l}" == "${cur_word:l}"* ]]; then
                         matched_favorites+=("$fav")
                     fi
                 done
-                
-                if [[ ${#matched_favorites} -gt 0 ]]; then
-                    # Set completion options to prevent prefix completion
-                    _comp_options+=(NO_listambiguous)
-                    
-                    # Add matches with display strings to force menu
-                    local match
-                    for match in "${matched_favorites[@]}"; do
-                        compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -d match -- "$match"
-                    done
-                else
-                    # No matches found, show all favorites
-                    compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a favorites
-                fi
             else
-                # No input yet, show all favorites
-                compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -l -a favorites
+                matched_favorites=("${favorites[@]}")
+            fi
+            
+            if [[ ${#matched_favorites} -gt 0 ]]; then
+                # Use _values which handles menu selection properly
+                local -a value_specs
+                local fav
+                for fav in "${matched_favorites[@]}"; do
+                    # Escape special characters for _values
+                    local escaped="${fav//:/\\:}"
+                    escaped="${escaped//\[/\\[}"
+                    escaped="${escaped//\]/\\]}"
+                    value_specs+=("${escaped//=/\\=}:${fav}")
+                done
+                
+                _values -s '' 'favorite commands' "${value_specs[@]}"
             fi
         else
             # If no favorites yet, show a helpful message
@@ -93,14 +94,8 @@ _fav() {
     esac
 }
 
-# Enable menu selection for cycling through matches
-# Force menu select always, starting from first match
-zstyle ':completion:*:*:fav:*' menu yes select=1
-
-# For fav specifically, prevent common prefix insertion
-zstyle ':completion:*:*:fav:*' insert-unambiguous false
-zstyle ':completion:*:*:fav:*' list-ambiguous false
-zstyle ':completion:*:*:fav:*' special-dirs false
-zstyle ':completion:*:*:fav:*' accept-exact false
+# Specific styles for fav to ensure menu selection works
+zstyle ':completion:*:*:fav:*:*' menu yes select
+zstyle ':completion:*:*:fav:*:*' force-list always
 
 _fav "$@"
