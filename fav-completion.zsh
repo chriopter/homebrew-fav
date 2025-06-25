@@ -30,16 +30,19 @@ _fav() {
                 done
                 
                 if [[ ${#matched_favorites} -gt 0 ]]; then
-                    # Add filtered matches with special handling for menu selection
-                    # -Q prevents quoting (no backslashes)
-                    _describe -t favorites -Q 'favorite commands' matched_favorites
+                    # Use compadd with special options to prevent prefix completion
+                    # -l: list display strings
+                    # -d: use display array for menu
+                    local -a display_array
+                    display_array=("${matched_favorites[@]}")
+                    compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -l -a display_array
                 else
                     # No matches found, show all favorites
-                    _describe -t favorites -Q 'favorite commands' favorites
+                    compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -l -a favorites
                 fi
             else
                 # No input yet, show all favorites
-                _describe -t favorites -Q 'favorite commands' favorites
+                compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -l -a favorites
             fi
         else
             # If no favorites yet, show a helpful message
