@@ -20,11 +20,20 @@ _fav() {
         
         # Only show favorite commands for tab completion
         if [[ ${#favorites} -gt 0 ]]; then
-            # Add case-insensitive matching
-            # -U: don't remove anything from the typed word
-            # -Q: don't quote the words
-            # -M: matcher for case-insensitive completion
-            compadd -U -M 'm:{a-zA-Z}={A-Za-z}' -Q -a favorites
+            # Filter favorites based on what's typed (case-insensitive)
+            local -a matched_favorites
+            for fav in "${favorites[@]}"; do
+                if [[ "${fav:l}" == "${cur_word:l}"* ]]; then
+                    matched_favorites+=("$fav")
+                fi
+            done
+            
+            if [[ ${#matched_favorites} -gt 0 ]]; then
+                # Add case-insensitive matching
+                # -Q: don't quote the words
+                # -M: matcher for case-insensitive completion
+                compadd -M 'm:{a-zA-Z}={A-Za-z}' -Q -a matched_favorites
+            fi
         else
             # If no favorites yet, show a helpful message
             _message "No favorite commands saved yet. Use 'fav add <command>' to add one."
